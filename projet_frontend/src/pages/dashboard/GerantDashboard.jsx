@@ -1,164 +1,150 @@
+// 📁 src/pages/dashboard/DashboardGerantHotel.jsx
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import SidebarGerantHotel from "../../components/SidebarGerantHotel";
+import DernieresReservations from "../../components/DernieresReservations";
 import {
-  FaHotel,
-  FaPlusCircle,
-  FaUserCog,
-  FaCalendarCheck,
-  FaConciergeBell,
-  FaClock,
-  FaChartBar,
+  FaEuroSign,
+  FaUsers,
+  FaChartLine,
+  FaBed,
+  FaBroom,
+  FaTools,
+  FaUserCircle,
+  FaEnvelope,
 } from "react-icons/fa";
+import api from "../../services/api";
 
-function GerantDashboard() {
-  const navigate = useNavigate();
-  const [gerantNom, setGerantNom] = useState("");
-  const [hotels, setHotels] = useState([
-    { id: 1, nom: "Hôtel Atlas", ville: "Marrakech" },
-    { id: 2, nom: "Riad Majorelle", ville: "Fès" },
-  ]);
-  const [reservations, setReservations] = useState(17); // exemple
+export default function DashboardGerantHotel() {
+  const [stats, setStats] = useState(null);
+  const [profil, setProfil] = useState(null);
 
   useEffect(() => {
-    const userProfile = localStorage.getItem("userProfile");
-    if (userProfile) {
-      const parsed = JSON.parse(userProfile);
-      setGerantNom(parsed.first_name || parsed.username || "Gérant");
+    async function fetchData() {
+      try {
+        const [resStats, resProfil] = await Promise.all([
+          api.get("auth/gerant/dashboard/overview/"),
+          api.get("/auth/profile/"),
+        ]);
+        setStats(resStats.data);
+        setProfil(resProfil.data);
+      } catch (error) {
+        console.error("Erreur chargement dashboard :", error);
+      }
     }
+    fetchData();
   }, []);
 
-  const cards = [
-    {
-      icon: <FaHotel className="text-indigo-600 text-3xl" />,
-      title: "Mes Hôtels",
-      desc: `${hotels.length} établissements enregistrés`,
-      onClick: () => navigate("/gerant/etablissements"),
-    },
-    {
-      icon: <FaPlusCircle className="text-green-600 text-3xl" />,
-      title: "Ajouter un Hôtel",
-      desc: "Publiez un nouvel établissement",
-      onClick: () => navigate("/gerant/ajouter-etablissement"),
-    },
-    {
-      icon: <FaCalendarCheck className="text-blue-600 text-3xl" />,
-      title: "Réservations",
-      desc: `${reservations} réservations reçues`,
-      onClick: () => navigate("/gerant/reservations"),
-    },
-    {
-      icon: <FaUserCog className="text-purple-600 text-3xl" />,
-      title: "Profil Établissement",
-      desc: "Modifier les infos de l’établissement",
-      onClick: () => navigate("/gerant/etablissement/profil"),
-    },
-    {
-      icon: <FaConciergeBell className="text-yellow-600 text-3xl" />,
-      title: "Services Proposés",
-      desc: "Ajouter ou modifier les services",
-      onClick: () => navigate("/gerant/services"),
-    },
-    {
-      icon: <FaClock className="text-pink-600 text-3xl" />,
-      title: "Disponibilités",
-      desc: "Configurer jours et horaires ouverts",
-      onClick: () => navigate("/gerant/disponibilites"),
-    },
-    {
-      icon: <FaChartBar className="text-orange-600 text-3xl" />,
-      title: "Statistiques",
-      desc: "Suivre taux de réservation et revenus",
-      onClick: () => navigate("/gerant/statistiques"),
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#dbeafe] to-[#ffffff] p-6 flex flex-col items-center">
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-6xl bg-white/60 backdrop-blur-xl border border-white/30 shadow-2xl rounded-3xl px-10 py-12"
-      >
-        {/* En-tête */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-indigo-800">
-            🏨 Bienvenue, <span className="text-indigo-600">{gerantNom}</span>
-          </h1>
-          <p className="text-gray-700 mt-2">
-            Gérez vos hôtels, vos services et vos réservations depuis cet espace dédié.
-          </p>
-        </div>
+    <div className="flex min-h-screen bg-gray-50">
+      <SidebarGerantHotel />
+      <main className="flex-1 p-10 ml-64">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">
+          Vue d’ensemble de votre établissement
+        </h1>
 
-        {/* Cartes principales */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {cards.slice(0, 6).map((card, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={card.onClick}
-              className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-indigo-200 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-4 mb-3">
-                {card.icon}
-                <h3 className="text-xl font-semibold text-gray-800">{card.title}</h3>
-              </div>
-              <p className="text-gray-600 text-sm">{card.desc}</p>
-            </motion.div>
-          ))}
-
-          {/* Centrer la carte Statistiques sur une nouvelle ligne */}
-          <div></div>
-          <motion.div
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={cards[6].onClick}
-            className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-indigo-200 transition cursor-pointer"
-          >
-            <div className="flex items-center gap-4 mb-3">
-              {cards[6].icon}
-              <h3 className="text-xl font-semibold text-gray-800">{cards[6].title}</h3>
+        {/* === Infos du gérant === */}
+        {profil && (
+          <div className="bg-white shadow rounded-xl p-6 mb-6 flex items-center gap-6">
+            <FaUserCircle className="text-5xl text-indigo-600" />
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800 mb-1">
+                {profil.first_name} {profil.last_name}
+              </h2>
+              <p className="text-sm text-gray-600 flex items-center gap-2">
+                <FaEnvelope /> {profil.email}
+              </p>
+              <p className="text-sm text-gray-600">Rôle : Gérant d’hôtel</p>
             </div>
-            <p className="text-gray-600 text-sm">{cards[6].desc}</p>
-          </motion.div>
-          <div></div>
-        </div>
-
-        {/* Liste des hôtels */}
-        <div className="mt-6">
-          <h2 className="text-2xl font-bold text-indigo-700 mb-4">📋 Vos Hôtels</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {hotels.map((hotel) => (
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                key={hotel.id}
-                className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
-              >
-                <h3 className="text-xl font-semibold text-gray-800">{hotel.nom}</h3>
-                <p className="text-sm text-gray-600 mb-4">📍 {hotel.ville}</p>
-                <div className="flex gap-4 mt-2">
-                  <button
-                    className="text-sm px-4 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-                    onClick={() => navigate(`/gerant/hotel/${hotel.id}/chambres`)}
-                  >
-                    Gérer les chambres
-                  </button>
-                  <button className="text-sm px-4 py-1 border border-gray-400 rounded-lg hover:bg-gray-100">
-                    Modifier
-                  </button>
-                  <button className="text-sm px-4 py-1 text-red-600 hover:underline">
-                    Supprimer
-                  </button>
-                </div>
-              </motion.div>
-            ))}
           </div>
-        </div>
-      </motion.div>
+        )}
+
+        {/* === Statistiques principales === */}
+        {stats && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <div className="flex items-center gap-4">
+                  <FaEuroSign className="text-3xl text-green-600" />
+                  <div>
+                    <p className="text-gray-500 text-sm">Revenu journalier</p>
+                    <h2 className="text-2xl font-bold">
+                      {stats.revenu_journalier.toLocaleString()} €
+                    </h2>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <div className="flex items-center gap-4">
+                  <FaUsers className="text-3xl text-orange-500" />
+                  <div>
+                    <p className="text-gray-500 text-sm">Clients actuels</p>
+                    <h2 className="text-2xl font-bold">
+                      {stats.clients_actuels}
+                    </h2>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl shadow-md">
+                <div className="flex items-center gap-4">
+                  <FaChartLine className="text-3xl text-indigo-600" />
+                  <div>
+                    <p className="text-gray-500 text-sm">
+                      Revenu moyen par chambre
+                    </p>
+                    <h2 className="text-2xl font-bold">
+                      {stats.revenu_par_chambre.toLocaleString()} €
+                    </h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* === Occupation des chambres === */}
+            <div className="bg-white p-6 rounded-xl shadow-md mt-6 mb-8">
+              <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                Occupation des chambres
+              </h2>
+
+              <div className="space-y-4">
+                {stats.occupation_chambres.map((item, index) => (
+                  <div key={index}>
+                    <p className="font-semibold text-gray-800">
+                      {item.type} ({item.occupees}/{item.total}) —{" "}
+                      {Math.round((item.occupees / item.total) * 100)}%
+                    </p>
+                    <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                      <div
+                        className="bg-indigo-600 h-full"
+                        style={{
+                          width: `${
+                            (item.occupees / item.total) * 100
+                          }%`,
+                        }}
+                      ></div>
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1 flex gap-4">
+                      <span>
+                        <FaBroom className="inline mr-1" /> Nettoyage :{" "}
+                        {item.en_nettoyage}
+                      </span>
+                      <span>
+                        <FaTools className="inline mr-1" /> Maintenance :{" "}
+                        {item.maintenance}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ✅ Réservations récentes */}
+            <DernieresReservations />
+          </>
+        )}
+      </main>
     </div>
   );
 }
 
-export default GerantDashboard;

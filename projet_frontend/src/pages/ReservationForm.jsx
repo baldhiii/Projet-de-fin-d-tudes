@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { loadStripe } from "@stripe/stripe-js";
 
 export default function ReservationFormHotel() {
   const { id } = useParams();
@@ -22,13 +23,21 @@ export default function ReservationFormHotel() {
   const [demande, setDemande] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+
 
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) return navigate("/login");
+    const paymentStatus = localStorage.getItem("paymentConfirmed");
+    if (paymentStatus === "ok") {
+    setPaymentSuccess(false);
+    localStorage.removeItem("paymentConfirmed");
+  }
 
     const headers = { headers: { Authorization: `Bearer ${token}` } };
+    
 
     axios.get(`http://localhost:8000/api/auth/etablissements/${id}/`, headers)
       .then(res => setEtablissement(res.data))
@@ -46,7 +55,53 @@ export default function ReservationFormHotel() {
       .then(res => setProfile(res.data))
       .catch(() => {});
   }, [id]);
-
+  const handleStripeCheckout = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return toast.error("Connexion requise");
+  
+    try {
+      const headers = { headers: { Authorization: `Bearer ${token}` } };
+  
+      // 1. Création pré-réservation
+      const preRes = await axios.post(
+        "http://localhost:8000/api/auth/pre-reservation/",
+        {
+          type_reservation: "hotel",
+          etablissement: id,
+          chambre: selectedRoom || null,
+          date_debut: dateDebut,
+          date_fin: dateFin,
+          nb_adultes: adults,
+          nb_enfants: children,
+          services: selectedServices,
+          demande_speciale: demande,
+        },
+        headers
+      );
+  
+      const reservationId = preRes.data.reservation_id;
+  
+      // 2. Demande d'une session Stripe
+      const stripeRes = await axios.post(
+        "http://localhost:8000/api/auth/checkout-session/",
+        { reservation_id: reservationId },
+        headers
+      );
+  
+      // 3. Avant de rediriger, on enregistre un flag dans le localStorage
+      localStorage.setItem("paymentConfirmed", "ok");
+  
+      // 4. Redirection vers Stripe
+      const stripe = await loadStripe(stripeRes.data.stripe_public_key);
+      await stripe.redirectToCheckout({ sessionId: stripeRes.data.sessionId });
+  
+    } catch (error) {
+      toast.error("Erreur lors du paiement Stripe");
+    }
+  };
+  
+  
+  
   const toggleService = (id) => {
     setSelectedServices(prev =>
       prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
@@ -199,11 +254,26 @@ export default function ReservationFormHotel() {
     className="w-full border px-4 py-2 rounded min-h-[100px]"
   ></textarea>
 </div>
+<button
+  type="button"
+  onClick={handleStripeCheckout}
+  className="w-full py-3 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700"
+>
+  Payer maintenant
+</button>
 
+<button
+  type="submit"
+  disabled={!paymentSuccess}
+  className={`mt-6 w-full py-3 rounded-full font-semibold transition ${
+    paymentSuccess
+      ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:opacity-90"
+      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+  }`}
+>
+  {paymentSuccess ? "Réserver maintenant" : "Paiement requis avant réservation"}
+</button>
 
-          <button type="submit" className="mt-6 w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full font-semibold hover:opacity-90">
-            Réserver maintenant
-          </button>
         </form>
       </div>
     </div>

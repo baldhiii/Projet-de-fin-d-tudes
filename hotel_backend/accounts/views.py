@@ -5,11 +5,18 @@ from .serializers import (
     UserSerializer,
     EtablissementSerializer
 )
+from rest_framework.exceptions import ValidationError
+from rest_framework.decorators import action
+from django.utils import timezone
+from accounts.models import UserAccount
 from rest_framework.decorators import api_view, permission_classes
 from .models import Avantage
 from django.db.models import Sum
-
-
+import stripe
+from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.http import HttpResponse
 from .models import UserAccount, Etablissement
 from .models import (
     Chambre,
@@ -79,25 +86,28 @@ class EtablissementViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
-            return [AllowAny()]  # 👈 accès public pour liste et détails
-        return [IsAuthenticated()]  # 👈 accès privé pour ajout/modif/suppression
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
-        etablissement = serializer.save(gerant=self.request.user)
+        destination_id = self.request.data.get("destination")
+        try:
+            destination = Destination.objects.get(id=destination_id)
+        except Destination.DoesNotExist:
+            raise serializers.ValidationError("Destination invalide.")
 
-        # Ajout automatique de l'image principale
+        etablissement = serializer.save(
+            gerant=self.request.user,
+            destination=destination
+        )
+
+        # Ajout automatique de l’image principale
         if etablissement.image:
             ImageEtablissement.objects.create(
                 etablissement=etablissement,
                 image=etablissement.image,
                 description="Image principale ajoutée automatiquement"
             )
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and getattr(user, "is_gerant", False):
-            return Etablissement.objects.filter(gerant=user)
-        return Etablissement.objects.all()
 
 # === CRUD pour les chambres (gérant uniquement) ===
 class ChambreViewSet(viewsets.ModelViewSet):
@@ -120,7 +130,21 @@ class TableRestaurantViewSet(viewsets.ModelViewSet):
         return TableRestaurant.objects.filter(restaurant__gerant=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(restaurant=self.request.data.get("restaurant"))
+        restaurant_id = self.request.data.get("restaurant")
+
+        # Vérifie que le restaurant existe et appartient au gérant connecté
+        try:
+            restaurant = Etablissement.objects.get(
+                id=restaurant_id,
+                gerant=self.request.user,
+                type="restaurant"
+            )
+        except Etablissement.DoesNotExist:
+            raise serializers.ValidationError("Restaurant non trouvé ou non autorisé.")
+
+        # Sauvegarde de la table avec l’instance du restaurant
+        serializer.save(restaurant=restaurant)
+
 
 
 # === Réservations ===
@@ -141,6 +165,23 @@ class ReservationViewSet(viewsets.ModelViewSet):
         instance.save()
         if services:
             instance.services.set(services)
+
+    @action(detail=True, methods=["patch"])
+    def changer_statut(self, request, pk=None):
+        try:
+            reservation = self.get_object()
+            if reservation.etablissement.gerant != request.user:
+                return Response({"detail": "Action non autorisée."}, status=403)
+
+            nouveau_statut = request.data.get("statut")
+            if nouveau_statut not in ["confirmee", "annulee"]:
+                return Response({"detail": "Statut invalide."}, status=400)
+
+            reservation.statut = nouveau_statut
+            reservation.save()
+            return Response({"message": f"Réservation mise à jour vers '{nouveau_statut}'."})
+        except Reservation.DoesNotExist:
+            return Response({"detail": "Réservation introuvable."}, status=404)
 
 
 
@@ -363,11 +404,19 @@ class StatsClientView(APIView):
     
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # ✅ accès public pour les clients
+@permission_classes([AllowAny])  # accès public autorisé
 def tables_par_etablissement(request, id):
-    tables = TableRestaurant.objects.filter(restaurant_id=id, disponible=True)  # ✅ seulement les dispo
+    try:
+        etablissement = Etablissement.objects.get(id=id, type='restaurant')
+    except Etablissement.DoesNotExist:
+        return Response({"detail": "Restaurant introuvable."}, status=status.HTTP_404_NOT_FOUND)
+
+    tables = TableRestaurant.objects.filter(
+        restaurant=etablissement,
+        disponible=True
+    )
     serializer = TableRestaurantSerializer(tables, many=True, context={'request': request})
-    return Response(serializer.data) 
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -379,3 +428,298 @@ def services_par_etablissement(request, id):
         return Response(serializer.data)
     except Etablissement.DoesNotExist:
         return Response({"detail": "Établissement introuvable."}, status=404)
+    
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+class CheckoutSessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        reservation_id = request.data.get("reservation_id")
+
+        try:
+            reservation = Reservation.objects.get(id=reservation_id, client=request.user)
+        except Reservation.DoesNotExist:
+            return Response({"error": "Réservation introuvable"}, status=404)
+
+        montant = 50000  # 💰 En centimes : 500 MAD = 50000
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[{
+                'price_data': {
+                    'currency': 'mad',
+                    'product_data': {
+                        'name': f"Réservation {reservation.etablissement.nom}",
+                    },
+                    'unit_amount': montant,
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url = settings.DOMAIN_FRONTEND + "/payement-success?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=settings.DOMAIN_FRONTEND + "/cancel",
+            metadata={
+                "reservation_id": str(reservation.id),
+                "user_id": str(request.user.id)
+            }
+        )
+
+        return Response({
+            "sessionId": session.id,
+            "stripe_public_key": settings.STRIPE_PUBLISHABLE_KEY
+        })
+
+class StripeWebhookView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    @method_decorator(csrf_exempt)
+    def post(self, request, *args, **kwargs):
+        payload = request.body
+        sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+        endpoint_secret = "whsec_d6dd1098983412fcba27e8d0a30f1c5e17ec0e4daca01ad2b35a590e61955eb6"
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, endpoint_secret
+            )
+        except (ValueError, stripe.error.SignatureVerificationError):
+            return HttpResponse(status=400)
+
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            reservation_id = session['metadata']['reservation_id']
+            user_id = session['metadata']['user_id']
+
+            try:
+                reservation = Reservation.objects.get(id=reservation_id)
+                reservation.paiement_effectue = True
+                reservation.save()
+
+                user = UserAccount.objects.get(id=user_id)
+
+                # Enregistrement du paiement
+                Paiement.objects.create(
+                    utilisateur_id=user_id,
+                    reservation=reservation,
+                    montant=session["amount_total"] / 100,
+                    methode="Stripe",
+                    statut="reussi"
+                )
+            except Reservation.DoesNotExist:
+                pass
+
+        return HttpResponse(status=200)
+    
+class PreReservationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        print("📥 Données reçues :", request.data)  # ← Ajoute cette ligne temporairement
+
+        serializer = ReservationSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            reservation = serializer.save()
+            return Response({"reservation_id": reservation.id}, status=201)
+        print("❌ Erreurs de validation :", serializer.errors)  # ← Ajoute aussi celle-ci
+        return Response(serializer.errors, status=400)
+
+class StripePaymentConfirmView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        session_id = request.data.get("session_id")
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            return Response({"status": session.payment_status})
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+class GerantDashboardOverview(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        etablissements = user.etablissements.filter(type="hotel")
+
+        # Paiements du jour
+        today = timezone.now().date()
+        paiements = Paiement.objects.filter(
+    reservation__etablissement__in=etablissements,
+    date_paiement__date=today,
+    statut="reussi"
+)
+
+        revenu_journalier = paiements.aggregate(total=Sum("montant"))["total"] or 0
+
+        # Clients actuels (réservations en cours)
+        now = timezone.now()
+        clients_actuels = Reservation.objects.filter(
+            etablissement__in=etablissements,
+            date_debut__lte=now,
+            date_fin__gte=now,
+            statut="confirmee"
+        ).count()
+
+        # Revenu moyen par chambre
+        chambres = Chambre.objects.filter(hotel__in=etablissements)
+        total_chambres = chambres.count()
+        total_paiements = Paiement.objects.filter(utilisateur=user, statut="reussi").aggregate(
+            total=Sum("montant")
+        )["total"] or 0
+        revenu_par_chambre = round(total_paiements / total_chambres, 2) if total_chambres > 0 else 0
+
+        # Occupation globale
+        occupees = Reservation.objects.filter(
+            chambre__in=chambres,
+            date_debut__lte=now,
+            date_fin__gte=now,
+            statut="confirmee"
+        ).count()
+
+        occupation_data = [{
+            "type": "Toutes chambres",
+            "total": total_chambres,
+            "occupees": occupees,
+            "en_nettoyage": 2,    # valeur statique (optionnel : à rendre dynamique plus tard)
+            "maintenance": 1
+        }]
+
+        return Response({
+            "revenu_journalier": revenu_journalier,
+            "clients_actuels": clients_actuels,
+            "revenu_par_chambre": revenu_par_chambre,
+            "occupation_chambres": occupation_data
+        })
+    
+class DernieresReservationsGerantView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        reservations = Reservation.objects.filter(etablissement__gerant=user).order_by('-date_reservation')[:5]
+
+        data = []
+        for r in reservations:
+            data.append({
+                "client": r.client.email,
+                "date_debut": r.date_debut,
+                "date_fin": r.date_fin,
+                "montant": None,  # facultatif, à adapter plus tard
+                "statut": r.statut,
+            })
+
+        return Response(data)
+    
+class ReservationsGerantView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        reservations = Reservation.objects.filter(
+            etablissement__gerant=user,
+            type_reservation='hotel'  # ✅ Affiche uniquement les hôtels
+        ).order_by('-date_reservation')
+
+        serializer = ReservationSerializer(reservations, many=True)
+        return Response(serializer.data)
+    
+class ChambreViewSet(viewsets.ModelViewSet):
+    queryset = Chambre.objects.all()
+    serializer_class = ChambreSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Le gérant ne voit que les chambres de ses propres hôtels.
+        """
+        user = self.request.user
+        return Chambre.objects.filter(hotel__gerant=user)
+
+    def perform_create(self, serializer):
+        """
+        À la création, on transforme l’ID envoyé en instance d’Etablissement.
+        """
+        etab_id = self.request.data.get("hotel")
+        try:
+            etablissement = Etablissement.objects.get(id=etab_id, gerant=self.request.user)
+            serializer.save(hotel=etablissement)
+        except Etablissement.DoesNotExist:
+            raise serializers.ValidationError("Établissement introuvable ou non autorisé.")
+        
+class GerantRestaurantDashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        restaurants = Etablissement.objects.filter(gerant=user, type="restaurant")
+
+        if not restaurants.exists():
+            return Response({
+                "revenu_journalier": 0,
+                "revenu_total": 0,
+                "clients_actuels": 0,
+                "revenu_par_table": 0
+            })
+
+        # Paiements
+        today = timezone.now().date()
+        paiements_jour = Paiement.objects.filter(
+            reservation__etablissement__in=restaurants,
+            statut="reussi"
+        )
+        revenu_journalier = paiements_jour.filter(date_paiement__date=today).aggregate(
+            total=Sum("montant"))["total"] or 0
+
+        revenu_total = paiements_jour.aggregate(total=Sum("montant"))["total"] or 0
+
+        # Réservations confirmées
+        clients_actuels = Reservation.objects.filter(
+            etablissement__in=restaurants,
+            statut="confirmee"
+        ).count()
+
+        # Tables
+        nb_tables = TableRestaurant.objects.filter(restaurant__in=restaurants).count()
+        revenu_par_table = round(revenu_total / nb_tables, 2) if nb_tables > 0 else 0
+
+        return Response({
+            "revenu_journalier": revenu_journalier,
+            "revenu_total": revenu_total,
+            "clients_actuels": clients_actuels,
+            "revenu_par_table": revenu_par_table
+        })
+class ReservationsRestaurantGerantView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        reservations = Reservation.objects.filter(
+            etablissement__gerant=user,
+            type_reservation='restaurant'  # ✅ Seulement les restaurants
+        ).order_by('-date_reservation')
+
+        serializer = ReservationSerializer(reservations, many=True)
+        return Response(serializer.data)
+    
+class HotelsDuGerantAPIView(ListAPIView):
+    serializer_class = EtablissementSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Etablissement.objects.filter(
+            gerant=self.request.user,
+            type="hotel"
+        )
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def tables_du_restaurant(request, id):
+    try:
+        restaurant = Etablissement.objects.get(id=id, gerant=request.user, type="restaurant")
+    except Etablissement.DoesNotExist:
+        return Response({"detail": "Restaurant introuvable ou non autorisé."}, status=404)
+
+    tables = TableRestaurant.objects.filter(restaurant=restaurant)
+    serializer = TableRestaurantSerializer(tables, many=True, context={'request': request})
+    return Response(serializer.data)

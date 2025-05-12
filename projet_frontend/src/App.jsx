@@ -6,14 +6,31 @@ import Hotels from './pages/Hotels';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ClientDashboard from './pages/dashboard/ClientDashboard';
-import GerantDashboard from './pages/dashboard/GerantDashboard';
+import DashboardGerantHotel from "./pages/dashboard/GerantDashboard";
 import AdminDashboard from './pages/dashboard/AdminDashboard';
 import MonCompte from './pages/MonCompte';
-import AjouterEtablissement from './pages/Gerant/AjouterEtablissement';
+import AjouterEtablissement from './pages/gerant/AjouterEtablissement';
 import Explore from "./pages/Explore";
 import EtablissementDetails from "./pages/EtablissementDetails";
 import ReservationForm from "./pages/ReservationForm";
 import ReservationFormRestaurant from "./pages/ReservationFormRestaurant";
+import PayementSuccess from "./pages/PaymentSuccess";
+import ConfigurationHotel from "./pages/dashboard/ConfigurationHotel";
+import ModifierEtablissement from "./pages/dashboard/ModifierEtablissement";
+import ModifierChambre from "./pages/dashboard/ModifierChambre";
+import ReservationsHotel from "./pages/dashboard/ReservationsHotel";
+import ToutesChambres from "./pages/dashboard/ToutesChambres";
+import ListeChambres from "./pages/dashboard/ListeChambres";
+import AjouterChambre from "./pages/dashboard/AjouterChambre";
+import DashboardGerantRestaurant from "./pages/dashboard/DashboardGerantRestaurant";
+import ReservationsRestaurant from "./pages/dashboard/ReservationsRestaurant";
+import GestionTablesResto from "./pages/dashboard/GestionTablesResto";
+import AjouterRestaurantForm from "./pages/dashboard/AjouterRestaurantForm";
+import DetailsRestaurant from "./pages/dashboard/DetailsRestaurant";
+import ModifierTable from "./pages/dashboard/ModifierTable";
+import AjouterTable from "./pages/dashboard/AjouterTable";
+
+
 
 
 function App() {
@@ -52,16 +69,44 @@ function App() {
     />
   }
 />
+<Route
+  path="/gerant/configuration"
+  element={<ConfigurationHotel />}
+/>
+<Route
+  path="/gerant/etablissement/:etabId/chambres/:chambreId/modifier"
+  element={<ModifierChambre />}
+/>
+<Route
+  path="/gerant/chambre/:chambreId/modifier"
+  element={<ModifierChambre />}
+/>
+<Route
+  path="/gerant/etablissement/:etabId/ajouter-chambre"
+  element={<AjouterChambre />}
+/>
 
           <Route path="/hotels" element={<Hotels />} />
+          <Route path="/gerant/table/:id/modifier" element={<ModifierTable />} />
+          <Route path="/dashboard/restaurant/:id/tables" element={<GestionTablesResto />} />
+          <Route path="/gerant/restaurant/:id/ajouter-table" element={<AjouterTable />} />
+          <Route path="/dashboard/restaurant/ajouter" element={<AjouterRestaurantForm />} />
+          <Route path="/dashboard/restaurant" element={<DashboardGerantRestaurant />} />
+          <Route path="/gerant/restaurant/:id/details" element={<DetailsRestaurant />} />
+          <Route path="/dashboard/restaurant/reservations" element={<ReservationsRestaurant />} />
+          <Route path="/gerant/etablissement/:id/modifier" element={<ModifierEtablissement />} />
+          <Route path="/gerant/etablissement/:id/chambres" element={<ListeChambres />} />
+          <Route path="/gerant/chambres" element={<ToutesChambres />} />
+          <Route path="/gerant/reservations" element={<ReservationsHotel />} />
           <Route path="/reserver/:id" element={<ReservationForm />} />
+          <Route path="/payement-success" element={<PayementSuccess />} />
           <Route path="/etablissements/:id/reserver" element={<ReservationFormRestaurant />} />
           <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
           <Route path="/etablissement/:id" element={<EtablissementDetails />} />
           <Route path="/explore/:ville" element={<Explore />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard/client" element={<ClientDashboard />} />
-          <Route path="/dashboard/gerant" element={<GerantDashboard nom="Moustapha" />} />
+          <Route path="/gerant/dashboard" element={<DashboardGerantHotel />} />
           <Route path="/dashboard/admin" element={<AdminDashboard nom="Abissa" />} />
           <Route path="/profil" element={<MonCompte setUserPhoto={setUserPhoto} />} />
           <Route path="/moncompte" element={<MonCompte />} />

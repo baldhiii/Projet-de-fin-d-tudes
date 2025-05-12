@@ -12,7 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -118,6 +121,12 @@ DATABASES = {
     }
 }
 
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+DOMAIN_FRONTEND = os.getenv("DOMAIN_FRONTEND")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+# settings.py
+DOMAIN_FRONTEND = "http://localhost:5173"  # ou ton vrai domaine
 
 
 # Password validation
@@ -165,7 +174,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.UserAccount'
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5174", 
+    "http://localhost:5173", 
 ]
 
 

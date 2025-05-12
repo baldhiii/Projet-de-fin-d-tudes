@@ -105,12 +105,14 @@ class Chambre(models.Model):
 
 class TableRestaurant(models.Model):
     restaurant = models.ForeignKey(Etablissement, on_delete=models.CASCADE, related_name='tables')
-    numero = models.CharField(max_length=10)
+    numero = models.CharField(max_length=20)
     capacite = models.IntegerField()
     disponible = models.BooleanField(default=True)
+    image = models.ImageField(upload_to='tables/', blank=True, null=True)  # ✅
 
     def __str__(self):
         return f"Table {self.numero} - {self.restaurant.nom}"
+
 
 class Reservation(models.Model):
     TYPE_CHOICES = [
@@ -160,13 +162,23 @@ class Avis(models.Model):
 
 class Paiement(models.Model):
     utilisateur = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    reservation = models.ForeignKey("Reservation", on_delete=models.CASCADE)  # ✅ à ajouter
     montant = models.DecimalField(max_digits=10, decimal_places=2)
     date_paiement = models.DateTimeField(auto_now_add=True)
     methode = models.CharField(max_length=50)  # Ex: carte, PayPal, etc.
-    statut = models.CharField(max_length=20, choices=[('reussi', 'Réussi'), ('echoue', 'Échoué'), ('en_attente', 'En attente')], default='en_attente')
+    statut = models.CharField(
+        max_length=20,
+        choices=[
+            ('reussi', 'Réussi'),
+            ('echoue', 'Échoué'),
+            ('en_attente', 'En attente')
+        ],
+        default='en_attente'
+    )
 
     def __str__(self):
         return f"{self.utilisateur.email} - {self.montant} MAD"
+
 
 class EtablissementFavori(models.Model):
     utilisateur = models.ForeignKey(UserAccount, on_delete=models.CASCADE, related_name="favoris")

@@ -71,10 +71,15 @@ class LoginSerializer(serializers.Serializer):
 
 # === Serializer pour établissements ===
 class EtablissementSerializer(serializers.ModelSerializer):
+    destination = serializers.PrimaryKeyRelatedField(
+        queryset=Destination.objects.all()
+    )
+
     class Meta:
         model = Etablissement
         fields = '__all__'
         read_only_fields = ['gerant', 'date_creation']
+
 
 class ChambreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -88,41 +93,81 @@ class TableRestaurantSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['restaurant']
 
+from accounts.serializers import UserSerializer, EtablissementSerializer, TableRestaurantSerializer
+
 class ReservationSerializer(serializers.ModelSerializer):
+    etablissement = EtablissementSerializer(read_only=True)
+    table = TableRestaurantSerializer(read_only=True)
     services = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=ServiceSupplementaire.objects.all(),
         required=False
     )
 
+    chambre = serializers.PrimaryKeyRelatedField(
+        queryset=Chambre.objects.all(),
+        required=False
+    )
+
+    table = serializers.PrimaryKeyRelatedField(
+        queryset=TableRestaurant.objects.all(),
+        required=False
+    )
+
+    etablissement = serializers.PrimaryKeyRelatedField(
+        queryset=Etablissement.objects.all(),
+        required=False  # ⚠️ pour permettre update / patch sans crash
+    )
+
+    client = UserSerializer(read_only=True)  # lecture seule
+    # 👆 utile si admin veut voir qui a réservé
+
     class Meta:
         model = Reservation
         fields = '__all__'
-        read_only_fields = ['id', 'client', 'date_reservation', 'statut']
+        read_only_fields = ['id', 'client', 'date_reservation']
 
     def validate(self, data):
-        type_reservation = data.get('type_reservation')
+        """
+        Valide selon le type_reservation.
+        Supporte PATCH (self.instance) + POST (data).
+        """
+        type_reservation = data.get(
+            'type_reservation',
+            getattr(self.instance, 'type_reservation', None)
+        )
 
         if type_reservation == 'hotel':
-            if not data.get('chambre'):
-                raise serializers.ValidationError("La chambre est requise pour une réservation d'hôtel.")
-            if not data.get('date_debut') or not data.get('date_fin'):
-                raise serializers.ValidationError("Les dates de début et de fin sont requises pour un hôtel.")
+            chambre = data.get('chambre', getattr(self.instance, 'chambre', None))
+            date_debut = data.get('date_debut', getattr(self.instance, 'date_debut', None))
+            date_fin = data.get('date_fin', getattr(self.instance, 'date_fin', None))
+
+            if not chambre:
+                raise serializers.ValidationError("Chambre requise pour une réservation d'hôtel.")
+            if not date_debut or not date_fin:
+                raise serializers.ValidationError("Dates requises pour une réservation d'hôtel.")
+
         elif type_reservation == 'restaurant':
-            if not data.get('table'):
-                raise serializers.ValidationError("La table est requise pour une réservation de restaurant.")
+            table = data.get('table', getattr(self.instance, 'table', None))
+            if not table:
+                raise serializers.ValidationError("Table requise pour une réservation de restaurant.")
         else:
-            raise serializers.ValidationError("Type de réservation invalide.")
+            raise serializers.ValidationError("Type de réservation invalide ou manquant.")
 
         return data
 
     def create(self, validated_data):
         request = self.context.get('request')
         services = validated_data.pop('services', [])
-        reservation = Reservation.objects.create(client=request.user, **validated_data)
+
+        # ⚠️ pour ne pas écraser si admin crée la réservation manuellement
+        client = request.user if request and request.user.is_authenticated else None
+        reservation = Reservation.objects.create(client=client, **validated_data)
         reservation.services.set(services)
         return reservation
-    
+
+
+
 class AvisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avis
@@ -159,14 +204,15 @@ class ImageEtablissementSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['id', 'etablissement']
 
-class ImageEtablissementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ImageEtablissement
-        fields = ['id', 'image', 'description']
 
+class DestinationMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Destination
+        fields = ['id', 'ville']
 
 class EtablissementSerializer(serializers.ModelSerializer):
     images = ImageEtablissementSerializer(many=True, read_only=True)
+    destination = DestinationMiniSerializer(read_only=True)
 
     class Meta:
         model = Etablissement
@@ -197,11 +243,15 @@ class AvantageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TableRestaurantSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = TableRestaurant
         fields = '__all__'
+        read_only_fields = ['restaurant']
 
 class ServiceSupplementaireSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceSupplementaire
         fields = '__all__'
+

@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { loadStripe } from "@stripe/stripe-js";
+
 
 export default function ReservationFormRestaurant() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const tableId = new URLSearchParams(location.search).get("table");
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   const [etablissement, setEtablissement] = useState(null);
   const [tables, setTables] = useState([]);
@@ -24,6 +27,12 @@ export default function ReservationFormRestaurant() {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) return navigate("/login");
+    const paymentStatus = localStorage.getItem("paymentConfirmed");
+if (paymentStatus === "ok") {
+  setPaymentSuccess(false);
+  localStorage.removeItem("paymentConfirmed");
+}
+
 
     const headers = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -39,6 +48,47 @@ export default function ReservationFormRestaurant() {
       .then(res => setServices(res.data))
       .catch(() => {});
   }, [id]);
+  const handleStripeCheckout = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return toast.error("Connexion requise");
+  
+    try {
+      const headers = { headers: { Authorization: `Bearer ${token}` } };
+  
+      // 1. Création pré-réservation
+      const preRes = await axios.post(
+        "http://localhost:8000/api/auth/pre-reservation/",
+        {
+          type_reservation: "restaurant",
+          etablissement: id,
+          table: selectedTable || null,
+          date_debut: dateDebut,
+          date_fin: dateFin,
+          nb_adultes: nbAdultes,
+          services: selectedServices,
+          demande_speciale: demande,
+        },
+        headers
+      );
+  
+      const reservationId = preRes.data.reservation_id;
+  
+      // 2. Démarrer paiement Stripe
+      const stripeRes = await axios.post(
+        "http://localhost:8000/api/auth/checkout-session/",
+        { reservation_id: reservationId },
+        headers
+      );
+  
+      localStorage.setItem("paymentConfirmed", "ok");
+  
+      const stripe = await loadStripe(stripeRes.data.stripe_public_key);
+      await stripe.redirectToCheckout({ sessionId: stripeRes.data.sessionId });
+    } catch (error) {
+      toast.error("Erreur lors du paiement Stripe");
+    }
+  };
+  
 
   const toggleService = (id) => {
     setSelectedServices((prev) =>
@@ -181,12 +231,25 @@ export default function ReservationFormRestaurant() {
           </div>
 
           <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-full font-semibold hover:opacity-90"
-          >
-            Réserver maintenant
-          </button>
+  type="button"
+  onClick={handleStripeCheckout}
+  className="w-full py-3 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700"
+>
+  Payer maintenant
+</button>
+
+<button
+  type="submit"
+  disabled={!paymentSuccess || isSubmitting}
+  className={`mt-4 w-full py-3 rounded-full font-semibold transition ${
+    paymentSuccess
+      ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:opacity-90"
+      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+  }`}
+>
+  {paymentSuccess ? "Réserver maintenant" : "Paiement requis avant réservation"}
+</button>
+
         </form>
       </div>
     </div>

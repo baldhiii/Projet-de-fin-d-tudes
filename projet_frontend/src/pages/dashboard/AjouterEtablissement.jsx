@@ -194,7 +194,3 @@ export default function AjouterEtablissement() {
   );
 }
 
-
-
-
-

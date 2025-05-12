@@ -182,34 +182,42 @@ const [selectedTableId, setSelectedTableId] = useState(null);
       Tables disponibles
     </h2>
     {tables.length > 0 ? (
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {tables.map((table) => (
-          <div
-            key={table.id}
-            className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 transition hover:shadow-xl"
-          >
-            <h3 className="text-xl font-semibold text-cyan-800 mb-2">
-              Table {table.numero}
-            </h3>
-            <p><strong>Capacité :</strong> {table.capacite} personnes</p>
-            <p className={`text-sm mt-2 ${table.disponible ? "text-green-600" : "text-red-600"}`}>
-              {table.disponible ? "Disponible" : "Indisponible"}
-            </p>
-            <button
-  onClick={() => navigate(`/etablissements/${etablissement.id}/reserver?table=${table.id}`)}
-  className="mt-4 px-5 py-2 bg-cyan-600 text-white rounded-full hover:bg-cyan-700 transition"
->
-  Réserver cette table
-</button>
+  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {tables.map((table) => (
+      <div
+        key={table.id}
+        className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 transition hover:shadow-xl"
+      >
+        {/* ✅ Affiche l’image si elle existe */}
+        {table.image && (
+          <img
+            src={table.image}
+            alt={`Image de la table ${table.numero}`}
+            className="w-full h-40 object-cover rounded-lg mb-4 border"
+          />
+        )}
 
-          </div>
-        ))}
+        <h3 className="text-xl font-semibold text-cyan-800 mb-2">
+          Table {table.numero}
+        </h3>
+        <p><strong>Capacité :</strong> {table.capacite} personnes</p>
+        <p className={`text-sm mt-2 ${table.disponible ? "text-green-600" : "text-red-600"}`}>
+          {table.disponible ? "Disponible" : "Indisponible"}
+        </p>
+
+        <button
+          onClick={() => navigate(`/etablissements/${etablissement.id}/reserver?table=${table.id}`)}
+          className="mt-4 px-5 py-2 bg-cyan-600 text-white rounded-full hover:bg-cyan-700 transition"
+        >
+          Réserver cette table
+        </button>
       </div>
-    ) : (
-      <p className="text-gray-500 text-center">
-        Aucune table disponible actuellement.
-      </p>
-    )}
+    ))}
+  </div>
+) : (
+  <p className="text-gray-500">Aucune table disponible pour cet établissement.</p>
+)}
+
   </div>
 )}
 
