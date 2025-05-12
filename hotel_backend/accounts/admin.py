@@ -15,7 +15,7 @@ from .models import (
     ImageEtablissement
 )
 from .models import Destination
-
+from .models import DemandeGerant
 
 @admin.register(UserAccount)
 class UserAccountAdmin(admin.ModelAdmin):
@@ -104,3 +104,8 @@ class DestinationAdmin(admin.ModelAdmin):
         return obj.nombre_restaurants()
     nombre_restaurants.short_description = "Nb Restaurants"
 
+@admin.register(DemandeGerant)
+class DemandeGerantAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'prenom', 'email', 'type_gerant', 'date_envoi')
+    search_fields = ('nom', 'prenom', 'email')
+    list_filter = ('type_gerant', 'date_envoi')

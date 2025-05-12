@@ -30,6 +30,8 @@ import DetailsRestaurant from "./pages/dashboard/DetailsRestaurant";
 import ModifierTable from "./pages/dashboard/ModifierTable";
 import AjouterTable from "./pages/dashboard/AjouterTable";
 import APropos from "./pages/APropos";
+import DevenirGerant from "./pages/DevenirGerant";
+
 
 
 
@@ -91,6 +93,8 @@ function App() {
 
           <Route path="/hotels" element={<Hotels />} />
           <Route path="/gerant/table/:id/modifier" element={<ModifierTable />} />
+          <Route path="/devenir-gerant" element={<DevenirGerant />} />
+
           <Route path="/dashboard/restaurant/:id/tables" element={<GestionTablesResto />} />
           <Route path="/gerant/restaurant/:id/ajouter-table" element={<AjouterTable />} />
           <Route path="/dashboard/restaurant/ajouter" element={<AjouterRestaurantForm />} />

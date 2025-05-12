@@ -21,6 +21,7 @@ from .views import HotelsDuGerantAPIView, TableRestaurantViewSet
 from .views import tables_du_restaurant, hotels_aleatoires
 from .views import restaurants_aleatoires
 from .views import etablissements_recents
+from .views import DemandeGerantAPIView
 
 
 
@@ -58,6 +59,7 @@ urlpatterns = [
     path('dashboard/stats-client/', StatsClientView.as_view(), name='stats-client'),
     path('destinations/', DestinationListAPIView.as_view(), name='destination-list'),
     path('destinations/<str:ville>/etablissements/', EtablissementsParVilleAPIView.as_view(), name='etablissements-par-ville'),
+    path("demande-gerant/", DemandeGerantAPIView.as_view(), name="demande-gerant"),
     path("auth/destinations/<str:ville>/etablissements/", EtablissementsParVilleAPIView.as_view()),
     path('profile/update/', ProfileUpdateView.as_view(), name='profile_update'),
     path('login/', TokenObtainPairView.as_view(), name='login'),

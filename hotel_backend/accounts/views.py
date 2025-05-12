@@ -42,7 +42,7 @@ from .serializers import (
     EtablissementFavoriSerializer,
     NotificationSerializer,
     ServiceSupplementaireSerializer,
-    ImageEtablissementSerializer,  AvantageSerializer
+    ImageEtablissementSerializer,  AvantageSerializer, DemandeGerantSerializer
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -748,3 +748,13 @@ def etablissements_recents(request):
     etablissements = Etablissement.objects.order_by('-date_creation')[:6]
     serializer = EtablissementSerializer(etablissements, many=True, context={'request': request})
     return Response(serializer.data)
+
+class DemandeGerantAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = DemandeGerantSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Demande envoyée avec succès."}, status=201)
+        return Response(serializer.errors, status=400)

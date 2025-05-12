@@ -15,7 +15,7 @@ from .models import (
     Notification,
     ServiceSupplementaire,
     ImageEtablissement,
-    Destination,
+    Destination,  DemandeGerant
 )
 from .models import ImageChambre, ServiceSupplementaire, Avantage
 
@@ -255,3 +255,7 @@ class ServiceSupplementaireSerializer(serializers.ModelSerializer):
         model = ServiceSupplementaire
         fields = '__all__'
 
+class DemandeGerantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DemandeGerant
+        fields = '__all__'
