@@ -29,6 +29,9 @@ import AjouterRestaurantForm from "./pages/dashboard/AjouterRestaurantForm";
 import DetailsRestaurant from "./pages/dashboard/DetailsRestaurant";
 import ModifierTable from "./pages/dashboard/ModifierTable";
 import AjouterTable from "./pages/dashboard/AjouterTable";
+import APropos from "./pages/APropos";
+
+
 
 
 
@@ -93,6 +96,7 @@ function App() {
           <Route path="/dashboard/restaurant/ajouter" element={<AjouterRestaurantForm />} />
           <Route path="/dashboard/restaurant" element={<DashboardGerantRestaurant />} />
           <Route path="/gerant/restaurant/:id/details" element={<DetailsRestaurant />} />
+          <Route path="/a-propos" element={<APropos />} />
           <Route path="/dashboard/restaurant/reservations" element={<ReservationsRestaurant />} />
           <Route path="/gerant/etablissement/:id/modifier" element={<ModifierEtablissement />} />
           <Route path="/gerant/etablissement/:id/chambres" element={<ListeChambres />} />

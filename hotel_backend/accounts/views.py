@@ -5,6 +5,7 @@ from .serializers import (
     UserSerializer,
     EtablissementSerializer
 )
+import random
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action
 from django.utils import timezone
@@ -722,4 +723,28 @@ def tables_du_restaurant(request, id):
 
     tables = TableRestaurant.objects.filter(restaurant=restaurant)
     serializer = TableRestaurantSerializer(tables, many=True, context={'request': request})
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def hotels_aleatoires(request):
+    hotels = list(Etablissement.objects.filter(type='hotel'))
+    random.shuffle(hotels)
+    selection = hotels[:4]
+    serializer = EtablissementSerializer(selection, many=True, context={'request': request})
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def restaurants_aleatoires(request):
+    restaurants = Etablissement.objects.filter(type="restaurant")
+    selection = random.sample(list(restaurants), min(3, len(restaurants)))  # max 3 restaurants
+    serializer = EtablissementSerializer(selection, many=True, context={"request": request})
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def etablissements_recents(request):
+    etablissements = Etablissement.objects.order_by('-date_creation')[:6]
+    serializer = EtablissementSerializer(etablissements, many=True, context={'request': request})
     return Response(serializer.data)

@@ -18,7 +18,9 @@ from .views import (
 from .views import GerantRestaurantDashboardView
 from .views import ReservationsRestaurantGerantView
 from .views import HotelsDuGerantAPIView, TableRestaurantViewSet
-from .views import tables_du_restaurant
+from .views import tables_du_restaurant, hotels_aleatoires
+from .views import restaurants_aleatoires
+from .views import etablissements_recents
 
 
 
@@ -42,13 +44,14 @@ urlpatterns = [
     path('etablissements/<int:id>/services/', services_par_etablissement, name='services-par-etablissement'),
     path("checkout-session/", CheckoutSessionView.as_view(), name="checkout-session"),
     path("webhook/stripe/", StripeWebhookView.as_view(), name="stripe-webhook"),
+    path('etablissements-recents/', etablissements_recents, name='etablissements_recents'),
     path("pre-reservation/", PreReservationView.as_view(), name="pre-reservation"),
     path("gerant/dashboard/overview/", GerantDashboardOverview.as_view(), name="gerant-dashboard-overview"),
     path("gerant/dashboard/dernieres-reservations/", DernieresReservationsGerantView.as_view(), name="dernieres-reservations"),
     path("reservations-gerant/", ReservationsGerantView.as_view(), name="reservations-gerant"),
     path("dashboard/restaurant/overview/", GerantRestaurantDashboardView.as_view(), name="dashboard-restaurant-overview"),
-
-
+    path('hotels-aleatoires/', hotels_aleatoires, name='hotels_aleatoires'),
+    path('restaurants-aleatoires/', restaurants_aleatoires, name='restaurants_aleatoires'),
     path('dashboard/mes-reservations/', MesReservationsView.as_view(), name='mes-reservations'),
     path('dashboard/activites-recentes/', ActivitesRecentesView.as_view(), name='activites-recentes'),
     path('dashboard/avantages/', AvantagesClientView.as_view(), name='avantages-client'),

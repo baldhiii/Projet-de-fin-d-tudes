@@ -5,6 +5,15 @@ import Navbar from "../Navbar";
 import SplineViewer from "../components/SplineViewer";
 import AdvancedSearch from "../components/AdvancedSearch";
 import PopularDestinations from "../components/PopularDestinations";
+import HotelsAlaUne from "../components/HotelsAlaUne"; 
+import RestaurantsAlaUne from "../components/RestaurantsAlaUne";
+import EtablissementsRecents from "../components/EtablissementsRecents";
+import PourquoiChoisirLuxvia from "../components/PourquoiChoisirLuxvia";
+import TemoignagesClients from "../components/TemoignagesClients"
+import LuxviaMobileApp from "../components/LuxviaMobileApp";
+import Footer from "../components/Footer";
+
+
 
 
 function Home({ isAuthenticated, setIsAuthenticated, userPhoto }) {
@@ -69,6 +78,22 @@ function Home({ isAuthenticated, setIsAuthenticated, userPhoto }) {
 </div>
 {/* ✅ Section des destinations populaires */}
 <PopularDestinations />
+<div className="w-full px-4 mb-16">
+  <HotelsAlaUne />
+</div>
+<div className="w-full px-4 mb-16">
+  <RestaurantsAlaUne />
+</div>
+<div className="w-full px-4 mb-16">
+  <EtablissementsRecents />
+</div>
+<LuxviaMobileApp theme={theme} />
+<TemoignagesClients />
+<div className="mt-0">
+  <PourquoiChoisirLuxvia />
+</div>
+<Footer theme={theme}/>
+
       {/* ✅ Thème Switcher */}
       <div className="fixed bottom-6 left-6 flex space-x-3 z-50">
         {Object.keys(themes).map((key) => (
