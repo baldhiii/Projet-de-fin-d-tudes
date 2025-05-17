@@ -22,6 +22,10 @@ from .views import tables_du_restaurant, hotels_aleatoires
 from .views import restaurants_aleatoires
 from .views import etablissements_recents
 from .views import DemandeGerantAPIView
+from .views import ChambreDetailAPIView
+from .views import ImageChambreCreateAPIView
+from .views import TableDetailAPIView
+
 
 
 
@@ -35,6 +39,8 @@ urlpatterns = [
     path('registration/', RegisterView.as_view(), name='register'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('reservations-gerant-restaurant/', ReservationsRestaurantGerantView.as_view(), name="reservations_gerant_restaurant"),
+    path('chambres/<int:pk>/', ChambreDetailAPIView.as_view(), name='chambre-detail'),
+    path("images-chambre/", ImageChambreCreateAPIView.as_view(), name="upload-image-chambre"),
     path('hotels/', HotelsPublicListView.as_view(), name='hotels-public'),
     path("etablissements/hotels/", HotelsDuGerantAPIView.as_view(), name="hotels-du-gerant"),
     path("restaurants/<int:id>/tables/", tables_du_restaurant, name="tables_du_restaurant"),    
@@ -44,6 +50,7 @@ urlpatterns = [
     path('etablissements/<int:id>/images/', images_par_etablissement, name='images_par_etablissement'),
     path('etablissements/<int:id>/services/', services_par_etablissement, name='services-par-etablissement'),
     path("checkout-session/", CheckoutSessionView.as_view(), name="checkout-session"),
+    path('tables/<int:id>/', TableDetailAPIView.as_view(), name='table-detail'),
     path("webhook/stripe/", StripeWebhookView.as_view(), name="stripe-webhook"),
     path('etablissements-recents/', etablissements_recents, name='etablissements_recents'),
     path("pre-reservation/", PreReservationView.as_view(), name="pre-reservation"),

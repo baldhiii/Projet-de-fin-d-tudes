@@ -1,13 +1,14 @@
 // src/components/SearchBar.jsx
 import { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const phrases = [
   "Réservez votre hôtel de rêve...",
   "Trouvez le meilleur restaurant...",
   "Découvrez les meilleurs spas...",
   "Planifiez votre séjour au Maroc...",
-  "Explorez les cafés les plus tendances...",
+  "Explorez les coins les plus tendances...",
   "Détendez-vous dans un hôtel de luxe...",
 ];
 
@@ -18,9 +19,10 @@ export default function SearchBar() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [userTyping, setUserTyping] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (userTyping) return; // ❌ Arrête l'animation si utilisateur écrit
+    if (userTyping) return;
 
     const typingSpeed = isDeleting ? 50 : 100;
     const pauseDuration = 1500;
@@ -48,8 +50,18 @@ export default function SearchBar() {
     setUserTyping(e.target.value.length > 0);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (inputValue.trim()) {
+      navigate(`/recherche?nom=${encodeURIComponent(inputValue)}`);
+    }
+  };
+
   return (
-    <div className="flex justify-center items-center">
+    <form
+      onSubmit={handleSubmit}
+      className="flex justify-center items-center"
+    >
       <div className="relative w-full max-w-4xl">
         <input
           type="text"
@@ -58,9 +70,11 @@ export default function SearchBar() {
           placeholder={placeholder}
           className="w-full px-5 py-4 pl-14 rounded-full shadow-lg backdrop-blur-md bg-white/70 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-700 text-lg"
         />
-        <FaSearch className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl" />
+        <FaSearch
+          onClick={handleSubmit}
+          className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl cursor-pointer"
+        />
       </div>
-    </div>
+    </form>
   );
 }
-

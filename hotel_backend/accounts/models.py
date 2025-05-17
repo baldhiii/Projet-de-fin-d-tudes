@@ -99,9 +99,22 @@ class Chambre(models.Model):
     capacite = models.IntegerField()
     image = models.ImageField(upload_to='chambres/', blank=True, null=True)
     disponible = models.BooleanField(default=True)
+    superficie = models.PositiveIntegerField(null=True, blank=True)
+    services = models.ManyToManyField('ServiceSupplementaire', blank=True)
+
 
     def __str__(self):
         return f"{self.nom} - {self.hotel.nom}"
+    
+# models.py
+
+class ImageChambre(models.Model):
+    chambre = models.ForeignKey(Chambre, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='chambres/')
+
+    def __str__(self):
+        return f"Image pour {self.chambre.nom}"
+
 
 class TableRestaurant(models.Model):
     restaurant = models.ForeignKey(Etablissement, on_delete=models.CASCADE, related_name='tables')

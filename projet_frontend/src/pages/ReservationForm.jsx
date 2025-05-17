@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { loadStripe } from "@stripe/stripe-js";
 
-export default function ReservationFormHotel() {
+export default function ReservationForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,7 +19,13 @@ export default function ReservationFormHotel() {
   const [rooms, setRooms] = useState([]);
   const [services, setServices] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
-  const [profile, setProfile] = useState({ prenom: "", nom: "", email: "", telephone: "" });
+  const [profile, setProfile] = useState({
+    prenom: "",
+    nom: "",
+    email: "",
+    telephone: ""  // laissé vide volontairement
+  });
+  
   const [demande, setDemande] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -51,9 +57,18 @@ export default function ReservationFormHotel() {
       .then(res => setServices(res.data))
       .catch(() => {});
 
-    axios.get(`http://localhost:8000/api/profile/`, headers)
-      .then(res => setProfile(res.data))
+      axios.get("http://localhost:8000/api/auth/profile/", headers)
+      .then(res => {
+        const { first_name, last_name, email } = res.data;
+        setProfile(prev => ({
+          ...prev,
+          prenom: first_name || "",
+          nom: last_name || "",
+          email: email || ""
+        }));
+      })
       .catch(() => {});
+    
   }, [id]);
   const handleStripeCheckout = async () => {
     const token = localStorage.getItem("accessToken");

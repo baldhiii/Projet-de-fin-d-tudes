@@ -31,7 +31,11 @@ import ModifierTable from "./pages/dashboard/ModifierTable";
 import AjouterTable from "./pages/dashboard/AjouterTable";
 import APropos from "./pages/APropos";
 import DevenirGerant from "./pages/DevenirGerant";
-
+import RechercheResultats from "./pages/RechercheResultats";
+import RechercheLuxvia from "./pages/RechercheLuxvia";
+import ChambreDetails from "./pages/ChambreDetails";
+import UploadImagesChambre from "./pages/UploadImagesChambre";
+import TableDetails from "./pages/TableDetails";
 
 
 
@@ -90,10 +94,34 @@ function App() {
   path="/gerant/etablissement/:etabId/ajouter-chambre"
   element={<AjouterChambre />}
 />
+<Route
+  path="/recherche"
+  element={
+    <RechercheResultats
+      isAuthenticated={isAuthenticated}
+      setIsAuthenticated={setIsAuthenticated}
+      userPhoto={userPhoto}
+    />
+  }
+/>
+<Route
+  path="/recherche"
+  element={
+    <RechercheLuxvia
+      isAuthenticated={isAuthenticated}
+      setIsAuthenticated={setIsAuthenticated}
+      userPhoto={userPhoto}
+    />
+  }
+/>
 
           <Route path="/hotels" element={<Hotels />} />
           <Route path="/gerant/table/:id/modifier" element={<ModifierTable />} />
           <Route path="/devenir-gerant" element={<DevenirGerant />} />
+          <Route path="/chambre/:id" element={<ChambreDetails />} />
+          <Route path="/dashboard/gerant/chambre/:id/images" element={<UploadImagesChambre />} />
+          <Route path="/table/:id" element={<TableDetails />} />
+
 
           <Route path="/dashboard/restaurant/:id/tables" element={<GestionTablesResto />} />
           <Route path="/gerant/restaurant/:id/ajouter-table" element={<AjouterTable />} />

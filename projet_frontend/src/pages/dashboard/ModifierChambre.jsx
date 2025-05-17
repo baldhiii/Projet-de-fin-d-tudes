@@ -4,7 +4,7 @@ import api from "../../services/api";
 import SidebarGerantHotel from "../../components/SidebarGerantHotel";
 
 export default function ModifierChambre() {
-  const { chambreId } = useParams(); // ✅ ID correct récupéré depuis l'URL
+  const { chambreId } = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -13,8 +13,11 @@ export default function ModifierChambre() {
     prix: "",
     capacite: "",
     disponible: true,
+    superficie: "",
+    services: [],
   });
 
+  const [allServices, setAllServices] = useState([]);
   const [image, setImage] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -28,6 +31,9 @@ export default function ModifierChambre() {
           prix: res.data.prix,
           capacite: res.data.capacite,
           disponible: res.data.disponible,
+          superficie: res.data.superficie || "",
+          services: res.data.services || [],
+          hotel: res.data.hotel
         });
       } catch (error) {
         console.error("Erreur chargement chambre:", error);
@@ -35,13 +41,30 @@ export default function ModifierChambre() {
       }
     }
 
+    async function fetchServices() {
+      try {
+        const res = await api.get(`/auth/etablissements/${formData.hotel}/services/`);
+        setAllServices(res.data);
+      } catch (err) {
+        console.error("Erreur chargement services :", err);
+      }
+    }
+
     fetchChambre();
+    fetchServices();
   }, [chambreId]);
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+
     if (name === "image") {
       setImage(files[0]);
+    } else if (type === "checkbox" && name.startsWith("service_")) {
+      const serviceId = parseInt(name.split("_")[1]);
+      const updatedServices = checked
+        ? [...formData.services, serviceId]
+        : formData.services.filter((id) => id !== serviceId);
+      setFormData({ ...formData, services: updatedServices });
     } else if (type === "checkbox") {
       setFormData({ ...formData, [name]: checked });
     } else {
@@ -53,7 +76,11 @@ export default function ModifierChambre() {
     e.preventDefault();
     const data = new FormData();
     for (const key in formData) {
-      data.append(key, formData[key]);
+      if (key === "services") {
+        formData.services.forEach((id) => data.append("services", id));
+      } else {
+        data.append(key, formData[key]);
+      }
     }
     if (image) {
       data.append("image", image);
@@ -63,7 +90,7 @@ export default function ModifierChambre() {
       await api.patch(`/accounts/chambres/${chambreId}/`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      navigate(-1); // 🔁 retour à la page précédente
+      navigate(-1); // Retour à la liste
     } catch (error) {
       console.error("Erreur mise à jour chambre:", error);
       setErrorMessage("Erreur lors de la modification de la chambre.");
@@ -129,6 +156,34 @@ export default function ModifierChambre() {
               required
             />
           </div>
+
+          <div className="mb-4">
+            <label className="block font-semibold">Superficie (m²)</label>
+            <input
+              type="number"
+              name="superficie"
+              value={formData.superficie}
+              onChange={handleChange}
+              className="w-full mt-1 border rounded px-3 py-2"
+            />
+          </div>
+
+          {allServices.length > 0 && (
+            <div className="mb-4">
+              <label className="block font-semibold mb-1">Services supplémentaires</label>
+              {allServices.map((service) => (
+                <div key={service.id} className="flex items-center gap-2 mt-1">
+                  <input
+                    type="checkbox"
+                    name={`service_${service.id}`}
+                    checked={formData.services.includes(service.id)}
+                    onChange={handleChange}
+                  />
+                  <label>{service.nom}</label>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="mb-4">
             <label className="block font-semibold">Image (optionnel)</label>

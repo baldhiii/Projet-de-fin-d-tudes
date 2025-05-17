@@ -233,9 +233,27 @@ class DestinationSerializer(serializers.ModelSerializer):
         return obj.etablissements.filter(type="restaurant").count()
 
 class ImageChambreSerializer(serializers.ModelSerializer):
+    chambre = serializers.PrimaryKeyRelatedField(queryset=Chambre.objects.all())  
+
     class Meta:
         model = ImageChambre
         fields = '__all__'
+
+class ChambreDetailSerializer(serializers.ModelSerializer):
+    images = ImageChambreSerializer(many=True, read_only=True)
+    hotel = serializers.IntegerField(source='hotel.id', read_only=True)  
+    services = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=ServiceSupplementaire.objects.all()
+    )  
+    superficie = serializers.IntegerField(required=False) 
+
+
+    class Meta:
+        model = Chambre
+        fields = [
+            "id", "nom", "description", "prix", "capacite", "disponible", "image", "hotel", "images", "services", "superficie"
+        ]
+
 
 class AvantageSerializer(serializers.ModelSerializer):
     class Meta:

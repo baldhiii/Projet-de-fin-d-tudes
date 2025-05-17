@@ -5,6 +5,9 @@ from .serializers import (
     UserSerializer,
     EtablissementSerializer
 )
+from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .serializers import ChambreDetailSerializer
 import random
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action
@@ -32,7 +35,7 @@ from .models import (
 )
 from rest_framework import status
 from rest_framework.decorators import api_view
-
+from rest_framework.generics import RetrieveAPIView
 from .serializers import (
     ChambreSerializer,
     TableRestaurantSerializer,
@@ -42,7 +45,7 @@ from .serializers import (
     EtablissementFavoriSerializer,
     NotificationSerializer,
     ServiceSupplementaireSerializer,
-    ImageEtablissementSerializer,  AvantageSerializer, DemandeGerantSerializer
+    ImageEtablissementSerializer,  AvantageSerializer, DemandeGerantSerializer, ChambreDetailSerializer
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -496,11 +499,18 @@ class StripeWebhookView(APIView):
             try:
                 reservation = Reservation.objects.get(id=reservation_id)
                 reservation.paiement_effectue = True
+                reservation.statut = "confirmee"  # ✅ CHANGEMENT DE STATUT
                 reservation.save()
 
-                user = UserAccount.objects.get(id=user_id)
+                # ✅ Rendre indisponible la chambre ou table selon le type de réservation
+                if reservation.chambre:
+                    reservation.chambre.disponible = False
+                    reservation.chambre.save()
+                elif reservation.table:
+                    reservation.table.disponible = False
+                    reservation.table.save()
 
-                # Enregistrement du paiement
+                # ✅ Enregistrer le paiement
                 Paiement.objects.create(
                     utilisateur_id=user_id,
                     reservation=reservation,
@@ -512,6 +522,7 @@ class StripeWebhookView(APIView):
                 pass
 
         return HttpResponse(status=200)
+
     
 class PreReservationView(APIView):
     permission_classes = [IsAuthenticated]
@@ -758,3 +769,28 @@ class DemandeGerantAPIView(APIView):
             serializer.save()
             return Response({"message": "Demande envoyée avec succès."}, status=201)
         return Response(serializer.errors, status=400)
+
+class ChambreUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = Chambre.objects.all()
+    serializer_class = ChambreDetailSerializer
+
+class ChambreDetailAPIView(RetrieveUpdateAPIView):  # ✅ au lieu de RetrieveAPIView
+    queryset = Chambre.objects.all()
+    serializer_class = ChambreDetailSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class ImageChambreCreateAPIView(generics.CreateAPIView):
+    queryset = ImageChambre.objects.all()
+    serializer_class = ImageChambreSerializer
+
+    def post(self, request, *args, **kwargs):
+        print("✅ Données reçues dans la requête :")
+        print(request.data)
+
+        return super().post(request, *args, **kwargs)
+    
+class TableDetailAPIView(RetrieveAPIView):
+    queryset = TableRestaurant.objects.all()
+    serializer_class = TableRestaurantSerializer
+    lookup_field = 'id'

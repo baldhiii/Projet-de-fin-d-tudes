@@ -160,7 +160,7 @@ const [selectedTableId, setSelectedTableId] = useState(null);
             <p><strong>Prix :</strong> {chambre.prix} MAD / nuit</p>
             <p className="text-gray-600 text-sm mt-2">{chambre.description}</p>
             <button
-              onClick={() => navigate(`/reserver/${etablissement.id}?chambre=${chambre.id}`)}
+              onClick={() => navigate(`/chambre/${chambre.id}`)            }
               className="mt-4 px-5 py-2 bg-cyan-600 text-white rounded-full hover:bg-cyan-700 transition"
             >
               Réserver cette chambre

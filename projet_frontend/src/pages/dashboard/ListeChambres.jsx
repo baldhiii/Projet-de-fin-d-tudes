@@ -70,13 +70,15 @@ export default function ListeChambres() {
                 <p className="text-sm text-gray-600 mb-3">
                   {chambre.disponible ? "✅ Disponible" : "❌ Indisponible"}
                 </p>
-                <div className="flex gap-3">
+
+                <div className="flex flex-wrap gap-3">
                   <button
                     onClick={() => navigate(`/gerant/chambre/${chambre.id}/modifier`)}
                     className="px-4 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700"
                   >
                     Modifier
                   </button>
+
                   <button
                     onClick={() => toggleDisponibilite(chambre.id, chambre.disponible)}
                     className={`px-4 py-1 text-sm text-white rounded ${
@@ -84,6 +86,13 @@ export default function ListeChambres() {
                     }`}
                   >
                     {chambre.disponible ? "Rendre indisponible" : "Rendre disponible"}
+                  </button>
+
+                  <button
+                    onClick={() => navigate(`/dashboard/gerant/chambre/${chambre.id}/images`)}
+                    className="px-4 py-1 text-sm text-white bg-purple-600 rounded hover:bg-purple-700"
+                  >
+                    📷 Ajouter des photos
                   </button>
                 </div>
               </div>
