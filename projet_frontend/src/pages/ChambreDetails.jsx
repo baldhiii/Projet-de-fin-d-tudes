@@ -96,13 +96,22 @@ export default function ChambreDetails() {
 
       {/* Bouton */}
       <div className="text-center mt-12">
-        <button
-          onClick={() => navigate(`/reserver/${chambre.hotel}?chambre=${chambre.id}`)
-        }
-          className="px-10 py-4 bg-indigo-600 text-white font-semibold text-lg rounded-full shadow hover:bg-indigo-700 transition duration-200"
-        >
-          Réserver cette chambre
-        </button>
+      <button
+  onClick={() => {
+    if (chambre.disponible) {
+      navigate(`/reserver/${chambre.hotel}?chambre=${chambre.id}`);
+    }
+  }}
+  disabled={!chambre.disponible}
+  className={`px-10 py-4 rounded-full text-lg font-semibold transition duration-200 shadow ${
+    chambre.disponible
+      ? "bg-indigo-600 text-white hover:bg-indigo-700"
+      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+  }`}
+>
+  {chambre.disponible ? "Réserver cette chambre" : "Déjà réservée"}
+</button>
+
       </div>
     </div>
   );

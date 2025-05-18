@@ -92,12 +92,22 @@ REST_FRAMEWORK = {
 
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'SERIALIZERS': {
-        'user_create': 'djoser.serializers.UserCreateSerializer',
-        'user': 'djoser.serializers.UserSerializer',
+    "LOGIN_FIELD": "email",
+    "USER_CREATE_PASSWORD_RETYPE": True,
+    "SEND_ACTIVATION_EMAIL": True,
+    "ACTIVATION_URL": "verification-success?uid={uid}&token={token}",
+    "DOMAIN": "localhost:5173",
+    "SITE_NAME": "Luxvia",
+    "SERIALIZERS": {
+        "user_create": "accounts.serializers.RegisterSerializer",
+        "user": "accounts.serializers.UserSerializer",
+        
+    },
+    "EMAIL": {
+        "activation": "accounts.email.CustomActivationEmail",
     }
 }
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
@@ -180,3 +190,14 @@ CORS_ALLOWED_ORIGINS = [
 
 
 AUTH_USER_MODEL = 'accounts.UserAccount'
+
+
+# === Configuration pour l'envoi d'e-mails via Gmail ===
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "moustaphakonem@gmail.com"  # 🔁 Remplace par ton vrai email Gmail
+EMAIL_HOST_PASSWORD = "hehtrfmbygkwltsa"    # ✅ ton mot de passe d’application SANS ESPACES
+DEFAULT_FROM_EMAIL = "Luxvia <no-reply@luxvia.com>"
+

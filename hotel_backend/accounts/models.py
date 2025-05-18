@@ -32,7 +32,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=150)
     profile_picture = models.CharField(max_length=255, blank=True, null=True)
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_client = models.BooleanField(default=True)
     is_gerant = models.BooleanField(default=False)

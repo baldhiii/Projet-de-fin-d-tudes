@@ -33,8 +33,9 @@ function Register() {
       setSuccessMessage("🎉 Votre compte a été créé avec succès !");
       setErrorMessage("");
       setTimeout(() => {
-        navigate("/login");
+        navigate("/email-verification");
       }, 2500);
+      
     } catch (error) {
       const messages = error.response?.data || {};
       let formatted = "";
@@ -65,9 +66,10 @@ function Register() {
       message={successMessage}
       onClose={() => {
         setSuccessMessage("");
-        navigate("/login");
+        navigate("/email-verification");
       }}
     />
+    
        )}
 
   {errorMessage && (

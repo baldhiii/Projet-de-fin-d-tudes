@@ -5,6 +5,7 @@ from .serializers import (
     UserSerializer,
     EtablissementSerializer
 )
+from .utils import send_confirmation_email
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .serializers import ChambreDetailSerializer
@@ -57,6 +58,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import ListAPIView
 from .models import ImageChambre
 from .serializers import ImageChambreSerializer
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.shortcuts import redirect
 
 
 
@@ -518,6 +523,28 @@ class StripeWebhookView(APIView):
                     methode="Stripe",
                     statut="reussi"
                 )
+                
+                if reservation.chambre:
+                    date_debut = reservation.date_debut
+                    date_fin = reservation.date_fin
+                elif reservation.table:
+                    date_debut = reservation.date_debut
+                    date_fin = reservation.date_fin
+
+                print("📨 Envoi de l’email à :", reservation.client.email)
+
+                send_confirmation_email(
+    user_email=reservation.client.email,
+    client_name=f"{reservation.client.first_name} {reservation.client.last_name}",
+    etablissement=reservation.etablissement.nom,
+    date_debut=date_debut,
+    date_fin=date_fin,
+    montant=session["amount_total"] / 100,
+    reference=f"RES{reservation.id:06d}",
+    type_reservation=reservation.type_reservation
+)
+
+
             except Reservation.DoesNotExist:
                 pass
 
@@ -794,3 +821,30 @@ class TableDetailAPIView(RetrieveAPIView):
     queryset = TableRestaurant.objects.all()
     serializer_class = TableRestaurantSerializer
     lookup_field = 'id'
+
+class TableUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = TableRestaurant.objects.all()
+    serializer_class = TableRestaurantSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'pk'
+
+class ActivateUserView(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = UserAccount.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, UserAccount.DoesNotExist):
+            user = None
+
+        if user and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            # Rediriger vers le login du frontend (modifie l'URL selon ton projet)
+            return redirect("http://localhost:5173/login?activated=true")
+        else:
+            return redirect("http://localhost:5173/login?error=invalid-link")
+        
+

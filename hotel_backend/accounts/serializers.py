@@ -2,7 +2,8 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import UserAccount, Etablissement
 from .models import TableRestaurant
-
+from djoser.serializers import ActivationSerializer
+from django.contrib.auth import get_user_model
 from .models import (
     UserAccount,
     Etablissement,
@@ -18,6 +19,12 @@ from .models import (
     Destination,  DemandeGerant
 )
 from .models import ImageChambre, ServiceSupplementaire, Avantage
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
 
 
 # === Serializer pour l'inscription ===
@@ -37,6 +44,25 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
         user = UserAccount.objects.create_user(**validated_data)
+        user.is_active = False  # 🔒 Compte inactif tant que non confirmé
+        user.save()
+
+        # 🔐 Génération token d’activation
+        request = self.context.get('request')
+        current_site = get_current_site(request)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        activation_link = f"http://{current_site.domain}/activation/{uid}/{token}/"
+
+        # 📧 Envoi de l’email
+        send_mail(
+            subject="Activez votre compte",
+            message=f"Bienvenue {user.first_name}, cliquez sur le lien suivant pour activer votre compte : {activation_link}",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
         return user
 
 
@@ -277,3 +303,6 @@ class DemandeGerantSerializer(serializers.ModelSerializer):
     class Meta:
         model = DemandeGerant
         fields = '__all__'
+
+User = get_user_model()
+

@@ -36,6 +36,8 @@ import RechercheLuxvia from "./pages/RechercheLuxvia";
 import ChambreDetails from "./pages/ChambreDetails";
 import UploadImagesChambre from "./pages/UploadImagesChambre";
 import TableDetails from "./pages/TableDetails";
+import EmailVerification from "./pages/EmailVerification";
+import VerificationSuccess from "./pages/VerificationSuccess";
 
 
 
@@ -121,6 +123,8 @@ function App() {
           <Route path="/chambre/:id" element={<ChambreDetails />} />
           <Route path="/dashboard/gerant/chambre/:id/images" element={<UploadImagesChambre />} />
           <Route path="/table/:id" element={<TableDetails />} />
+          <Route path="/email-verification" element={<EmailVerification />} />
+          <Route path="/verification-success" element={<VerificationSuccess />} />
 
 
           <Route path="/dashboard/restaurant/:id/tables" element={<GestionTablesResto />} />

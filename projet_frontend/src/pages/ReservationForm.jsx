@@ -185,15 +185,47 @@ export default function ReservationForm() {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block mb-2 font-medium">Date d'arrivée</label>
-              <input type="datetime-local" value={dateDebut} onChange={(e) => setDateDebut(e.target.value)} required className="w-full px-4 py-2 border rounded" />
-            </div>
-            <div>
-              <label className="block mb-2 font-medium">Date de départ</label>
-              <input type="datetime-local" value={dateFin} onChange={(e) => setDateFin(e.target.value)} required className="w-full px-4 py-2 border rounded" />
-            </div>
+        
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div>
+      <label className="block mb-2 font-medium">Date d'arrivée</label>
+      <input
+        type="datetime-local"
+        value={dateDebut}
+        onChange={(e) => {
+          const newDate = e.target.value;
+          setDateDebut(newDate);
+
+          // Réinitialiser la date de fin si elle devient invalide
+          if (dateFin && new Date(newDate) > new Date(dateFin)) {
+            setDateFin("");
+          }
+        }}
+        required
+        className="w-full px-4 py-2 border rounded"
+      />
+    </div>
+
+    <div>
+      <label className="block mb-2 font-medium">Date de départ</label>
+      <input
+        type="datetime-local"
+        value={dateFin}
+        onChange={(e) => setDateFin(e.target.value)}
+        min={dateDebut} // Empêche de sélectionner une date antérieure
+        required
+        className="w-full px-4 py-2 border rounded"
+      />
+    </div>
+  
+
+  {/* Message d’erreur optionnel (UX) */}
+  {dateDebut && dateFin && new Date(dateFin) < new Date(dateDebut) && (
+    <p className="text-red-600 text-sm mt-2">
+      ⚠️ La date de départ ne peut pas être avant la date d’arrivée.
+    </p>
+  )}
+
             <div>
               <label className="block mb-2 font-medium">Adultes</label>
               <input type="number" min="1" value={adults} onChange={(e) => setAdults(e.target.value)} className="w-full px-4 py-2 border rounded" />

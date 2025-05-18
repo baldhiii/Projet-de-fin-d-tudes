@@ -153,28 +153,38 @@ if (paymentStatus === "ok") {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block font-medium">Date & Heure d’arrivée</label>
-              <input
-                type="datetime-local"
-                value={dateDebut}
-                onChange={(e) => setDateDebut(e.target.value)}
-                required
-                className="w-full px-4 py-2 border rounded"
-              />
-            </div>
-            <div>
-              <label className="block font-medium">Date & Heure de fin</label>
-              <input
-                type="datetime-local"
-                value={dateFin}
-                onChange={(e) => setDateFin(e.target.value)}
-                required
-                className="w-full px-4 py-2 border rounded"
-              />
-            </div>
-          </div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div>
+      <label className="block font-medium">Date & Heure d’arrivée</label>
+      <input
+        type="datetime-local"
+        value={dateDebut}
+        onChange={(e) => {
+          const newDate = e.target.value;
+          setDateDebut(newDate);
+
+          // Réinitialise dateFin si elle devient invalide
+          if (dateFin && new Date(newDate) > new Date(dateFin)) {
+            setDateFin("");
+          }
+        }}
+        required
+        className="w-full px-4 py-2 border rounded"
+      />
+    </div>
+    <div>
+      <label className="block font-medium">Date & Heure de fin</label>
+      <input
+        type="datetime-local"
+        value={dateFin}
+        onChange={(e) => setDateFin(e.target.value)}
+        min={dateDebut} // 🔒 bloque automatiquement les dates < dateDebut
+        required
+        className="w-full px-4 py-2 border rounded"
+      />
+    </div>
+  </div>
+
 
           <div>
             <label className="block font-medium mt-4">Nombre de personnes</label>
