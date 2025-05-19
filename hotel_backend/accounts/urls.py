@@ -13,7 +13,7 @@ from .views import PreReservationView, GerantDashboardOverview
 from .views import (
     MesReservationsView,
     ActivitesRecentesView,
-    AvantagesClientView, DernieresReservationsGerantView,  ReservationsGerantView, ChambreViewSet
+    AvantagesClientView, DernieresReservationsGerantView,  ReservationsGerantView, ChambreViewSet, menu_par_restaurant
 )
 from .views import GerantRestaurantDashboardView
 from .views import ReservationsRestaurantGerantView
@@ -26,7 +26,7 @@ from .views import ChambreDetailAPIView
 from .views import ImageChambreCreateAPIView
 from .views import TableDetailAPIView
 from .views import TableUpdateAPIView
-from .views import ActivateUserView
+from .views import ActivateUserView, MenuGerantViewSet, recherche_etablissements
 
 
 
@@ -35,6 +35,7 @@ router.register(r'etablissements', EtablissementViewSet, basename='etablissement
 router.register(r'reservations', ReservationViewSet, basename='reservations')
 router.register(r'chambres', ChambreViewSet, basename='chambre')
 router.register(r'tables', TableRestaurantViewSet, basename='tables')
+router.register(r'gerant/menu', MenuGerantViewSet, basename='menu-gerant')
 
 urlpatterns = [
     path('registration/', RegisterView.as_view(), name='register'),
@@ -42,11 +43,13 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile'),
     path('reservations-gerant-restaurant/', ReservationsRestaurantGerantView.as_view(), name="reservations_gerant_restaurant"),
     path('chambres/<int:pk>/', ChambreDetailAPIView.as_view(), name='chambre-detail'),
+    path('recherche/', recherche_etablissements, name='recherche-etablissements'),
     path("images-chambre/", ImageChambreCreateAPIView.as_view(), name="upload-image-chambre"),
     path('hotels/', HotelsPublicListView.as_view(), name='hotels-public'),
     path("etablissements/hotels/", HotelsDuGerantAPIView.as_view(), name="hotels-du-gerant"),
     path("restaurants/<int:id>/tables/", tables_du_restaurant, name="tables_du_restaurant"),    
     path('restaurants/', RestaurantsPublicListView.as_view(), name='restaurants-public'),
+    path('restaurants/<int:id>/menu/', menu_par_restaurant),
     path('etablissements/<int:id>/tables/', tables_par_etablissement, name='tables-par-etablissement'),
     path('etablissements/<int:id>/chambres/', chambres_par_etablissement, name='chambres_par_etablissement'),
     path('etablissements/<int:id>/images/', images_par_etablissement, name='images_par_etablissement'),

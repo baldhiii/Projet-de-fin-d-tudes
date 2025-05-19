@@ -1,7 +1,6 @@
-// 📁 src/pages/RechercheLuxvia.jsx
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import api from "../services/api";
+import axios from "axios";
 import Navbar from "../Navbar";
 import Footer from "../components/Footer";
 
@@ -13,15 +12,24 @@ export default function RechercheLuxvia({ isAuthenticated, setIsAuthenticated, u
   const query = useQuery();
   const ville = query.get("ville");
   const type = query.get("type");
+  const date_debut = query.get("date_debut");
+  const date_fin = query.get("date_fin");
+
   const [resultats, setResultats] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchResultats = async () => {
       try {
-        const res = await api.get(`/accounts/destinations/${ville}/etablissements/`);
-        const etablissementsFiltres = res.data.filter((etab) => etab.type === type);
-        setResultats(etablissementsFiltres);
+        const res = await axios.get("http://localhost:8000/api/recherche/", {
+          params: {
+            ville,
+            type,
+            date_debut,
+            date_fin,
+          },
+        });
+        setResultats(res.data);
       } catch (err) {
         console.error("Erreur lors du chargement :", err);
       } finally {
@@ -30,7 +38,7 @@ export default function RechercheLuxvia({ isAuthenticated, setIsAuthenticated, u
     };
 
     fetchResultats();
-  }, [ville, type]);
+  }, [ville, type, date_debut, date_fin]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -72,7 +80,7 @@ export default function RechercheLuxvia({ isAuthenticated, setIsAuthenticated, u
             ))}
           </div>
         ) : (
-          <p>Aucun résultat trouvé.</p>
+          <p>Aucun établissement disponible pour ces critères.</p>
         )}
       </div>
 
@@ -80,4 +88,5 @@ export default function RechercheLuxvia({ isAuthenticated, setIsAuthenticated, u
     </div>
   );
 }
+
 

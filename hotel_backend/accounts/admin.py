@@ -16,7 +16,7 @@ from .models import (
 )
 from .models import Destination
 from .models import DemandeGerant
-
+from .models import Menu
 @admin.register(UserAccount)
 class UserAccountAdmin(admin.ModelAdmin):
     list_display = ('email', 'username', 'first_name', 'last_name', 'is_client', 'is_gerant', 'is_admin')
@@ -109,3 +109,8 @@ class DemandeGerantAdmin(admin.ModelAdmin):
     list_display = ('nom', 'prenom', 'email', 'type_gerant', 'date_envoi')
     search_fields = ('nom', 'prenom', 'email')
     list_filter = ('type_gerant', 'date_envoi')
+
+@admin.register(Menu)
+class MenuAdmin(admin.ModelAdmin):
+    list_display = ('nom', 'restaurant', 'prix')
+    search_fields = ('nom', 'restaurant__nom')

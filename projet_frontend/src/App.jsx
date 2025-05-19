@@ -31,14 +31,16 @@ import ModifierTable from "./pages/dashboard/ModifierTable";
 import AjouterTable from "./pages/dashboard/AjouterTable";
 import APropos from "./pages/APropos";
 import DevenirGerant from "./pages/DevenirGerant";
-import RechercheResultats from "./pages/RechercheResultats";
+
 import RechercheLuxvia from "./pages/RechercheLuxvia";
 import ChambreDetails from "./pages/ChambreDetails";
 import UploadImagesChambre from "./pages/UploadImagesChambre";
 import TableDetails from "./pages/TableDetails";
 import EmailVerification from "./pages/EmailVerification";
 import VerificationSuccess from "./pages/VerificationSuccess";
-
+import MenuRestaurant from "./pages/MenuRestaurant";
+import GererMenu from "./pages/dashboard/GererMenu";
+import RechercheResultats from "./pages/RechercheResultats";
 
 
 
@@ -96,16 +98,7 @@ function App() {
   path="/gerant/etablissement/:etabId/ajouter-chambre"
   element={<AjouterChambre />}
 />
-<Route
-  path="/recherche"
-  element={
-    <RechercheResultats
-      isAuthenticated={isAuthenticated}
-      setIsAuthenticated={setIsAuthenticated}
-      userPhoto={userPhoto}
-    />
-  }
-/>
+
 <Route
   path="/recherche"
   element={
@@ -116,6 +109,17 @@ function App() {
     />
   }
 />
+<Route
+  path="/recherche-resultats"
+  element={
+    <RechercheResultats
+      isAuthenticated={isAuthenticated}
+      setIsAuthenticated={setIsAuthenticated}
+      userPhoto={userPhoto}
+    />
+  }
+/>
+
 
           <Route path="/hotels" element={<Hotels />} />
           <Route path="/gerant/table/:id/modifier" element={<ModifierTable />} />
@@ -125,7 +129,9 @@ function App() {
           <Route path="/table/:id" element={<TableDetails />} />
           <Route path="/email-verification" element={<EmailVerification />} />
           <Route path="/verification-success" element={<VerificationSuccess />} />
-
+          <Route path="/restaurant/:id/menu" element={<MenuRestaurant />} />
+          <Route path="/dashboard/gerant-restaurant/menu" element={<GererMenu />} />
+          
 
           <Route path="/dashboard/restaurant/:id/tables" element={<GestionTablesResto />} />
           <Route path="/gerant/restaurant/:id/ajouter-table" element={<AjouterTable />} />

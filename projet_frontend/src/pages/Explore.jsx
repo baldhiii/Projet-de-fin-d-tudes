@@ -35,7 +35,7 @@ export default function Explore() {
 
   return (
     <div className={`min-h-screen ${current.bg} ${current.text} px-6 py-12 mt-24 transition-all duration-500`}>
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-6 py-12 pt-20">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-4xl font-bold drop-shadow-md">
             Résultats pour : <span className="text-cyan-500">{ville}</span>

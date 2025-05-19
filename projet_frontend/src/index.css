@@ -1,3 +1,21 @@
+/* ✅ Les imports doivent être tout en haut */
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
+
+/* Ensuite tes styles */
+@keyframes zoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+
+.animate-zoom {
+  animation: zoom 10s ease-in-out infinite alternate;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

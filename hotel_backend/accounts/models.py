@@ -264,3 +264,15 @@ class DemandeGerant(models.Model):
 
     def __str__(self):
         return f"{self.nom} {self.prenom} - {self.type_gerant}"
+
+class Menu(models.Model):
+    restaurant = models.ForeignKey("Etablissement", on_delete=models.CASCADE, related_name="menu")
+    nom = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    prix = models.DecimalField(max_digits=6, decimal_places=2)
+    image = models.ImageField(upload_to='menu/', blank=True, null=True)  # facultatif
+    disponible = models.BooleanField(default=True)
+
+
+    def __str__(self):
+        return f"{self.nom} - {self.restaurant.nom}"

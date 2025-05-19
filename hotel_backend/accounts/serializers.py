@@ -18,7 +18,7 @@ from .models import (
     ImageEtablissement,
     Destination,  DemandeGerant
 )
-from .models import ImageChambre, ServiceSupplementaire, Avantage
+from .models import ImageChambre, ServiceSupplementaire, Avantage, Menu
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
@@ -306,3 +306,12 @@ class DemandeGerantSerializer(serializers.ModelSerializer):
 
 User = get_user_model()
 
+class MenuSerializer(serializers.ModelSerializer):
+    restaurant = serializers.PrimaryKeyRelatedField(
+        queryset=Etablissement.objects.filter(type='restaurant')
+    )
+    image = serializers.ImageField(required=False, allow_null=True)
+
+    class Meta:
+        model = Menu
+        fields = '__all__'

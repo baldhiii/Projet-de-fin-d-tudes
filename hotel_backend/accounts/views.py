@@ -5,6 +5,8 @@ from .serializers import (
     UserSerializer,
     EtablissementSerializer
 )
+from .models import Menu
+from .serializers import MenuSerializer
 from .utils import send_confirmation_email
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -848,3 +850,61 @@ class ActivateUserView(APIView):
             return redirect("http://localhost:5173/login?error=invalid-link")
         
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def menu_par_restaurant(request, id):
+    plats = Menu.objects.filter(restaurant__id=id)
+    serializer = MenuSerializer(plats, many=True)
+    return Response(serializer.data)
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+
+class MenuGerantViewSet(viewsets.ModelViewSet):
+    serializer_class = MenuSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]  # ✅ accepte tous les formats
+
+    def get_queryset(self):
+        return Menu.objects.filter(restaurant__gerant=self.request.user)
+
+    def perform_create(self, serializer):
+        restaurant = serializer.validated_data.get('restaurant')
+        if restaurant.gerant != self.request.user:
+            raise permissions.PermissionDenied("Restaurant non autorisé.")
+        serializer.save()
+
+    def perform_update(self, serializer):
+        restaurant = serializer.validated_data.get('restaurant')
+
+    # ✅ Si aucun restaurant n'est envoyé (modif partielle), on récupère depuis l'objet instance
+        if restaurant is None:
+           restaurant = serializer.instance.restaurant
+
+        if restaurant.gerant != self.request.user:
+            raise permissions.PermissionDenied("Vous ne pouvez modifier ce plat.")
+
+        serializer.save()
+
+from datetime import datetime
+
+@api_view(['GET'])
+def recherche_etablissements(request):
+    ville = request.GET.get("ville")
+    type_etab = request.GET.get("type")
+    date_debut = request.GET.get("date_debut")
+    date_fin = request.GET.get("date_fin")
+
+    etablissements = Etablissement.objects.filter(destination__icontains=ville, type=type_etab)
+
+    if date_debut and date_fin:
+        date_debut = datetime.fromisoformat(date_debut)
+        date_fin = datetime.fromisoformat(date_fin)
+
+        # Exclure les établissements ayant des réservations actives pour cette période
+        etablissements = etablissements.exclude(
+            Q(reservation__date_debut__lt=date_fin) &
+            Q(reservation__date_fin__gt=date_debut) &
+            Q(reservation__statut="confirmee")
+        ).distinct()
+
+    serializer = EtablissementSerializer(etablissements, many=True)
+    return Response(serializer.data)

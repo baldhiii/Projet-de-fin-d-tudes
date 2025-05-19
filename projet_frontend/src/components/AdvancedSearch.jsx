@@ -1,4 +1,4 @@
- // 📁 components/SearchBarLuxvia.jsx
+// 📁 components/SearchBarLuxvia.jsx
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaMapMarkerAlt, FaCalendarAlt, FaUserFriends } from "react-icons/fa";
@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 export default function SearchBarLuxvia() {
   const [type, setType] = useState("hotel");
   const [destination, setDestination] = useState("");
-  const [restaurants, setRestaurants] = useState([]);
+  const [etablissements, setEtablissements] = useState([]);
   const [destinations, setDestinations] = useState([]);
   const [showDestinations, setShowDestinations] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -44,18 +44,20 @@ export default function SearchBarLuxvia() {
   }, []);
 
   useEffect(() => {
-    if (type === "restaurant") {
-      axios.get("http://127.0.0.1:8000/api/restaurants/")
-        .then((res) => setRestaurants(res.data))
-        .catch((err) => console.error("Erreur chargement restaurants:", err));
-    }
-  }, [type]);
+    axios
+      .get("http://127.0.0.1:8000/api/accounts/etablissements/")
+      .then((res) => setEtablissements(res.data))
+      .catch((err) => console.error("Erreur chargement établissements :", err));
+  }, []);
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/accounts/destinations/")
-      .then((res) => setDestinations(res.data))
-      .catch((err) => console.error("Erreur chargement destinations:", err));
-  }, []);
+    const uniques = new Set(
+      etablissements
+        .filter((e) => e.type === type)
+        .map((e) => e.destination.ville)
+    );
+    setDestinations([...uniques]);
+  }, [type, etablissements]);
 
   const handleSelect = (ranges) => {
     setSelectionRange(ranges.selection);
@@ -66,6 +68,7 @@ export default function SearchBarLuxvia() {
   return (
     <div className="w-full flex justify-center mt-12">
       <div className="grid grid-cols-5 gap-2 items-center bg-white/80 backdrop-blur-md rounded-3xl shadow-xl px-6 py-4 max-w-5xl w-full">
+        {/* Type selector */}
         <div className="col-span-5 flex justify-center mb-2">
           <div className="inline-flex rounded-full bg-gray-200 p-1">
             <button onClick={() => setType("hotel")} className={`px-4 py-1 rounded-full text-sm font-semibold transition ${type === "hotel" ? "bg-cyan-500 text-white" : "text-gray-700"}`}>
@@ -89,12 +92,12 @@ export default function SearchBarLuxvia() {
           <AnimatePresence>
             {showDestinations && (
               <motion.ul initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} className="absolute z-10 mt-2 w-full bg-white shadow-lg rounded-xl p-2 border border-gray-200 max-h-64 overflow-y-auto">
-                {(type === "hotel" ? destinations.map((d) => d.ville) : restaurants.map(r => r.nom)).map((item) => (
-                  <li key={item} className="px-3 py-2 text-gray-800 hover:bg-cyan-100 rounded-md font-medium cursor-pointer transition" onClick={() => {
-                    setDestination(item);
+                {destinations.map((ville) => (
+                  <li key={ville} className="px-3 py-2 text-gray-800 hover:bg-cyan-100 rounded-md font-medium cursor-pointer transition" onClick={() => {
+                    setDestination(ville);
                     setShowDestinations(false);
                   }}>
-                    {item}
+                    {ville}
                   </li>
                 ))}
               </motion.ul>
@@ -102,7 +105,7 @@ export default function SearchBarLuxvia() {
           </AnimatePresence>
         </div>
 
-        {/* Dates */}
+        {/* Calendar */}
         <div ref={calendarRef} className="relative col-span-2">
           <button onClick={() => setShowCalendar((prev) => !prev)} className="flex items-center w-full px-4 py-2 bg-white rounded-xl border border-gray-300 shadow-sm hover:border-cyan-400 transition">
             <FaCalendarAlt className="text-cyan-500 mr-2" />
@@ -120,12 +123,14 @@ export default function SearchBarLuxvia() {
           </AnimatePresence>
         </div>
 
-        {/* Guests or Tables */}
+        {/* Guests */}
         <div ref={guestRef} className="relative col-span-1">
           <button onClick={() => setShowGuests((prev) => !prev)} className="flex items-center w-full px-4 py-2 bg-white rounded-xl border border-gray-300 shadow-sm hover:border-cyan-400 transition">
             <FaUserFriends className="text-cyan-500 mr-2" />
             <span className="text-sm font-medium text-gray-700">
-              {type === "hotel" ? `${guests} personnes, ${chambres} chambre${chambres > 1 ? "s" : ""}` : `${guests} personnes, ${tables} table${tables > 1 ? "s" : ""}`}
+              {type === "hotel"
+                ? `${guests} personnes, ${chambres} chambre${chambres > 1 ? "s" : ""}`
+                : `${guests} personnes, ${tables} table${tables > 1 ? "s" : ""}`}
             </span>
           </button>
 
@@ -141,10 +146,14 @@ export default function SearchBarLuxvia() {
                   </div>
                 </div>
                 <div>
-                  <span className="block mb-1 text-sm font-semibold text-gray-600">{type === "hotel" ? "Chambres" : "Tables"}</span>
+                  <span className="block mb-1 text-sm font-semibold text-gray-600">
+                    {type === "hotel" ? "Chambres" : "Tables"}
+                  </span>
                   <div className="flex items-center space-x-3">
                     <button onClick={() => type === "hotel" ? setChambres((c) => Math.max(1, c - 1)) : setTables((t) => Math.max(1, t - 1))} className="bg-gray-200 px-3 rounded-full text-lg">−</button>
-                    <span className="font-semibold">{type === "hotel" ? chambres : tables}</span>
+                    <span className="font-semibold">
+                      {type === "hotel" ? chambres : tables}
+                    </span>
                     <button onClick={() => type === "hotel" ? setChambres((c) => c + 1) : setTables((t) => t + 1)} className="bg-gray-200 px-3 rounded-full text-lg">+</button>
                   </div>
                 </div>
@@ -153,9 +162,16 @@ export default function SearchBarLuxvia() {
           </AnimatePresence>
         </div>
 
+        {/* Search */}
         <div className="col-span-5 text-center mt-2">
-          <button onClick={() => navigate(`/recherche-resultats?ville=${encodeURIComponent(destination)}&type=${type}`)
-} className="bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold px-8 py-2 rounded-full hover:opacity-90 transition">
+          <button
+            onClick={() =>
+              navigate(
+                `/recherche-resultats?ville=${encodeURIComponent(destination)}&type=${type}&date_debut=${selectionRange.startDate.toISOString().split("T")[0]}&date_fin=${selectionRange.endDate.toISOString().split("T")[0]}`
+              )
+            }
+            className="bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold px-8 py-2 rounded-full hover:opacity-90 transition"
+          >
             Rechercher
           </button>
         </div>

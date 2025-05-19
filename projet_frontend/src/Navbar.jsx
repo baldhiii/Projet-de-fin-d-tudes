@@ -8,7 +8,6 @@ function Navbar({ theme = "light", isAuthenticated, setIsAuthenticated, userPhot
   const [userProfile, setUserProfile] = useState(null);
   const navigate = useNavigate();
 
-  // 🔄 Garde l'état d'authentification synchronisé avec le localStorage
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token && !isAuthenticated) {
@@ -29,7 +28,6 @@ function Navbar({ theme = "light", isAuthenticated, setIsAuthenticated, userPhot
     };
   }, [isAuthenticated, setIsAuthenticated]);
 
-  // 📸 Détermine l'image du profil utilisateur
   const getAvatarSrc = () => {
     if (userPhoto) return userPhoto;
     if (!userProfile?.profile_picture) return null;
@@ -39,7 +37,6 @@ function Navbar({ theme = "light", isAuthenticated, setIsAuthenticated, userPhot
 
   const avatarSrc = getAvatarSrc();
 
-  // 🔓 Déconnexion
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -49,28 +46,14 @@ function Navbar({ theme = "light", isAuthenticated, setIsAuthenticated, userPhot
     navigate("/");
   };
 
-  // 🎨 Styles dynamiques par thème
-  const themeStyles = {
-    light: "bg-white text-gray-900",
-    dark: "bg-gray-900 text-white",
-    cyan: "bg-cyan-100 text-gray-900",
-    rose: "bg-rose-100 text-gray-900",
-    black: "bg-black text-white",
-  };
-
-  const currentTheme = themeStyles[theme] || themeStyles.light;
-
   return (
-    <nav
-      className={`fixed top-0 left-0 w-full z-50 px-8 py-4 flex justify-between items-center transition-all duration-300 ${currentTheme}`}
-      style={{ borderBottom: "none" }}
-    >
-      <Link to="/" className="text-2xl font-bold text-cyan-500">
+    <nav className="fixed top-0 left-0 w-full z-50 px-8 py-4 flex justify-between items-center bg-transparent backdrop-blur-sm">
+      <Link to="/" className="text-2xl font-bold text-white">
         Luxvia
       </Link>
 
       <div className="flex items-center space-x-6">
-        <Link to="/hotels" className="hover:text-cyan-500 transition">
+        <Link to="/hotels" className="hover:text-cyan-300 text-white transition">
           <motion.div whileHover={{ scale: 1.2 }} whileTap={{ scale: 0.9 }} className="cursor-pointer">
             <MenuSquare className="w-6 h-6" />
           </motion.div>

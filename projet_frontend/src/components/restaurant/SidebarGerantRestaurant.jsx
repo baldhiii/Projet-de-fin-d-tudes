@@ -4,7 +4,7 @@ import { FaUtensils, FaConciergeBell, FaClipboardList, FaSignOutAlt } from "reac
 const menuItems = [
   { label: "Tableau de bord", icon: <FaUtensils />, path: "/dashboard/restaurant" },
   { label: "Réservations", icon: <FaClipboardList />, path: "/dashboard/restaurant/reservations" },
-  { label: "Menu", icon: <FaConciergeBell />, path: "/dashboard/restaurant/menu" },
+  { label: "Menu", icon: <FaConciergeBell />, path: "/dashboard/gerant-restaurant/menu" },
   { label: "Inventaire", icon: <FaClipboardList />, path: "/dashboard/restaurant/inventaire" },
 ];
 
