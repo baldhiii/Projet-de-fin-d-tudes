@@ -3,8 +3,9 @@ from rest_framework import generics, permissions, viewsets
 from .serializers import (
     RegisterSerializer,
     UserSerializer,
-    EtablissementSerializer
+    EtablissementSerializer,  GerantRestaurantRegisterSerializer
 )
+from .serializers import GerantRegisterSerializer
 from .models import Menu
 from .serializers import MenuSerializer
 from .utils import send_confirmation_email
@@ -385,7 +386,7 @@ class StatsClientView(APIView):
         ).aggregate(total=Sum("montant"))["total"] or 0
 
         # 🗣️ Nombre d'avis publiés
-        nb_avis = Avis.objects.filter(reservation__client=user).count()
+        nb_avis = Avis.objects.filter(client=user).count()
 
         # 🎁 Calcul des points fidélité (1 MAD = 10 points)
         points_fidelite = int(total_depenses * 10)
@@ -908,3 +909,107 @@ def recherche_etablissements(request):
 
     serializer = EtablissementSerializer(etablissements, many=True)
     return Response(serializer.data)
+
+class ImageChambreUpdateAPIView(generics.UpdateAPIView):
+    queryset = ImageChambre.objects.all()
+    serializer_class = ImageChambreSerializer
+
+class AvisListeGlobaleAPIView(generics.ListAPIView):
+    queryset = Avis.objects.select_related("client").order_by("-date")[:10]  # ✅ champ "date"
+    serializer_class = AvisSerializer
+    permission_classes = [AllowAny]
+    
+class AvisCreateAPIView(generics.CreateAPIView):
+    serializer_class = AvisSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        client = request.user
+        etablissement_id = request.data.get("etablissement")
+
+        if not etablissement_id:
+            return Response({"detail": "Établissement requis."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # ✅ Vérifie que le client a une réservation terminée
+        reservation_existe = Reservation.objects.filter(
+            client=client,
+            etablissement_id=etablissement_id,
+            statut="terminee"
+        ).exists()
+
+        if not reservation_existe:
+            return Response(
+                {"detail": "Vous devez avoir terminé un séjour pour laisser un avis."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # ✅ Vérifie que le client n’a pas déjà laissé un avis
+        avis_existe = Avis.objects.filter(
+            client=client,
+            etablissement_id=etablissement_id
+        ).exists()
+
+        if avis_existe:
+            return Response(
+                {"detail": "Vous avez déjà laissé un avis pour cet établissement."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # ✅ Valide les données restantes et crée l'avis
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        serializer.save(client=self.request.user)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def peut_laisser_avis(request, etablissement_id):
+    client = request.user
+
+    reservation_existe = Reservation.objects.filter(
+        client=client,
+        etablissement_id=etablissement_id,
+        statut="terminee"
+    ).exists()
+
+    avis_existe = Avis.objects.filter(
+        client=client,
+        etablissement_id=etablissement_id
+    ).exists()
+
+    return Response({"peut_laisser": reservation_existe and not avis_existe})
+
+from rest_framework.permissions import AllowAny
+
+class RegisterGerantView(APIView):
+    permission_classes = [AllowAny]  # ✅ rend la vue publique
+
+    def post(self, request):
+        serializer = GerantRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Gérant créé avec succès"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RegisterGerantRestaurantView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = GerantRestaurantRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Gérant restaurant créé avec succès"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class RestaurantsDuGerantAPIView(ListAPIView):
+    serializer_class = EtablissementSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Etablissement.objects.filter(
+            gerant=self.request.user,
+            type="restaurant"
+        )

@@ -17,16 +17,17 @@ from .views import (
 )
 from .views import GerantRestaurantDashboardView
 from .views import ReservationsRestaurantGerantView
-from .views import HotelsDuGerantAPIView, TableRestaurantViewSet
+from .views import HotelsDuGerantAPIView, TableRestaurantViewSet, AvisCreateAPIView
 from .views import tables_du_restaurant, hotels_aleatoires
 from .views import restaurants_aleatoires
 from .views import etablissements_recents
-from .views import DemandeGerantAPIView
-from .views import ChambreDetailAPIView
+from .views import DemandeGerantAPIView, ImageChambreUpdateAPIView, peut_laisser_avis
+from .views import ChambreDetailAPIView, AvisListeGlobaleAPIView
 from .views import ImageChambreCreateAPIView
 from .views import TableDetailAPIView
 from .views import TableUpdateAPIView
 from .views import ActivateUserView, MenuGerantViewSet, recherche_etablissements
+from .views import RegisterGerantView, RegisterGerantRestaurantView, RestaurantsDuGerantAPIView
 
 
 
@@ -50,6 +51,15 @@ urlpatterns = [
     path("restaurants/<int:id>/tables/", tables_du_restaurant, name="tables_du_restaurant"),    
     path('restaurants/', RestaurantsPublicListView.as_view(), name='restaurants-public'),
     path('restaurants/<int:id>/menu/', menu_par_restaurant),
+    path('avis/recents/', AvisListeGlobaleAPIView.as_view(), name='avis-recents'),
+    path('avis/ajouter/', AvisCreateAPIView.as_view(), name='avis-ajouter'),
+    path("avis/permission/<int:etablissement_id>/", peut_laisser_avis),
+    path("register-gerant/", RegisterGerantView.as_view(), name="register-gerant"),
+    path('register-gerant-restaurant/', RegisterGerantRestaurantView.as_view(), name='register-gerant-restaurant'),
+    path('mes-restaurants/', RestaurantsDuGerantAPIView.as_view(), name='mes-restaurants'),
+
+
+    path('images-chambres/<int:pk>/modifier/', ImageChambreUpdateAPIView.as_view(), name='modifier_image_chambre'),
     path('etablissements/<int:id>/tables/', tables_par_etablissement, name='tables-par-etablissement'),
     path('etablissements/<int:id>/chambres/', chambres_par_etablissement, name='chambres_par_etablissement'),
     path('etablissements/<int:id>/images/', images_par_etablissement, name='images_par_etablissement'),
@@ -78,5 +88,5 @@ urlpatterns = [
     path('profile/update/', ProfileUpdateView.as_view(), name='profile_update'),
     path('login/', TokenObtainPairView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('', include(router.urls)),  # <- pour activer /api/accounts/etablissements
+    path('', include(router.urls)),  
 ]

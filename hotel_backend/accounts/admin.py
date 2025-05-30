@@ -62,7 +62,7 @@ class ReservationAdmin(admin.ModelAdmin):
     
 @admin.register(Avis)
 class AvisAdmin(admin.ModelAdmin):
-    list_display = ('reservation', 'note', 'date')
+    list_display = ['client', 'etablissement', 'note', 'date']
     list_filter = ('note',)
 
 

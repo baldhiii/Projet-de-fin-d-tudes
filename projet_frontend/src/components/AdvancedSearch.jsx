@@ -70,15 +70,26 @@ export default function SearchBarLuxvia() {
       <div className="grid grid-cols-5 gap-2 items-center bg-white/80 backdrop-blur-md rounded-3xl shadow-xl px-6 py-4 max-w-5xl w-full">
         {/* Type selector */}
         <div className="col-span-5 flex justify-center mb-2">
-          <div className="inline-flex rounded-full bg-gray-200 p-1">
-            <button onClick={() => setType("hotel")} className={`px-4 py-1 rounded-full text-sm font-semibold transition ${type === "hotel" ? "bg-cyan-500 text-white" : "text-gray-700"}`}>
-              Hôtels
-            </button>
-            <button onClick={() => setType("restaurant")} className={`px-4 py-1 rounded-full text-sm font-semibold transition ${type === "restaurant" ? "bg-cyan-500 text-white" : "text-gray-700"}`}>
-              Restaurants
-            </button>
-          </div>
-        </div>
+  <div className="inline-flex rounded-full bg-gray-200 p-1 w-[280px] sm:w-[320px] md:w-[360px] justify-between">
+    <button
+      onClick={() => setType("hotel")}
+      className={`w-1/2 py-2 rounded-full text-sm font-semibold transition ${
+        type === "hotel" ? "bg-cyan-500 text-white" : "text-gray-700"
+      }`}
+    >
+      Hôtels
+    </button>
+    <button
+      onClick={() => setType("restaurant")}
+      className={`w-1/2 py-2 rounded-full text-sm font-semibold transition ${
+        type === "restaurant" ? "bg-cyan-500 text-white" : "text-gray-700"
+      }`}
+    >
+      Restaurants
+    </button>
+  </div>
+</div>
+
 
         {/* Destination */}
         <div ref={destinationRef} className="relative col-span-2">

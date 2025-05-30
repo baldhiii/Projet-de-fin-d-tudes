@@ -16,9 +16,10 @@ export default function DashboardGerantRestaurant() {
       const profileRes = await api.get("/auth/profile/");
       setUser(profileRes.data);
 
-      const restoRes = await api.get("/auth/etablissements/");
-      const restos = restoRes.data.filter((e) => e.type === "restaurant");
-      setRestaurants(restos);
+      const restoRes = await api.get("/auth/mes-restaurants/");
+setRestaurants(restoRes.data);
+
+  
 
       const statsRes = await api.get("auth/dashboard/restaurant/overview/");
       setStats(statsRes.data);

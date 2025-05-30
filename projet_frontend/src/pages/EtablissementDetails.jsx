@@ -16,6 +16,8 @@ export default function EtablissementDetails() {
   const [images, setImages] = useState([]);
   const [chambres, setChambres] = useState([]);
   const [tables, setTables] = useState([]);
+  const [peutLaisserAvis, setPeutLaisserAvis] = useState(false);
+
   const [showReservationForm, setShowReservationForm] = useState(false);
 const [selectedChambreId, setSelectedChambreId] = useState(null);
 const [selectedTableId, setSelectedTableId] = useState(null);
@@ -46,6 +48,11 @@ const [selectedTableId, setSelectedTableId] = useState(null);
   
         // Étape 3 : selon le type, charger les chambres ou les tables
         if (etab.type === "hotel") {
+          axios
+  .get(`http://localhost:8000/api/auth/avis/permission/${id}/`, headers)
+  .then((res) => setPeutLaisserAvis(res.data.peut_laisser))
+  .catch(() => console.warn("Impossible de vérifier les droits d'avis"));
+
           axios
             .get(`http://localhost:8000/api/auth/etablissements/${id}/chambres/`, headers)
             .then((res) => setChambres(res.data))
@@ -228,6 +235,17 @@ const [selectedTableId, setSelectedTableId] = useState(null);
 
   </div>
 )}
+{peutLaisserAvis && (
+  <div className="text-center mt-12">
+    <button
+      onClick={() => navigate(`/etablissement/${id}/avis`)}
+      className="px-6 py-3 bg-black text-white rounded-full hover:bg-gray-800 transition"
+    >
+      ✍️ Laisser un avis sur cet établissement
+    </button>
+  </div>
+)}
+
 
 </div> 
   );      

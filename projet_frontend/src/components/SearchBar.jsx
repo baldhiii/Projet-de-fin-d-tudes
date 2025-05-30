@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 const phrases = [
   "Réservez votre hôtel de rêve...",
   "Trouvez le meilleur restaurant...",
-  "Découvrez les meilleurs spas...",
+  "Découvrez les meilleurs coins...",
   "Planifiez votre séjour au Maroc...",
   "Explorez les coins les plus tendances...",
   "Détendez-vous dans un hôtel de luxe...",

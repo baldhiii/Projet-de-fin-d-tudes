@@ -27,6 +27,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 
 
+
 # === Serializer pour l'inscription ===
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
@@ -195,10 +196,24 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 
 class AvisSerializer(serializers.ModelSerializer):
+    client_prenom = serializers.SerializerMethodField()
+    client_nom = serializers.SerializerMethodField()
+    client_photo = serializers.SerializerMethodField()
+
     class Meta:
         model = Avis
-        fields = '__all__'
-        read_only_fields = ['date']
+        fields = ['id', 'note', 'commentaire', 'date', 'etablissement', 'client_prenom', 'client_nom', 'client_photo']
+
+    def get_client_prenom(self, obj):
+        return obj.client.first_name if obj.client else "Anonyme"
+
+    def get_client_nom(self, obj):
+        return obj.client.last_name if obj.client else ""
+
+    def get_client_photo(self, obj):
+        if obj.client and obj.client.profile_picture:
+            return obj.client.profile_picture
+        return "https://randomuser.me/api/portraits/lego/1.jpg"
 
 class PaiementSerializer(serializers.ModelSerializer):
     class Meta:
@@ -286,6 +301,8 @@ class AvantageSerializer(serializers.ModelSerializer):
         model = Avantage
         fields = '__all__'
 
+
+
 class TableRestaurantSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False, allow_null=True)
 
@@ -315,3 +332,51 @@ class MenuSerializer(serializers.ModelSerializer):
     class Meta:
         model = Menu
         fields = '__all__'
+
+class GerantRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = UserAccount
+        fields = ['email', 'username', 'first_name', 'last_name', 'password', 'password2', 'matricule', 'date_embauche', 'type_gerant']
+
+    def validate(self, data):
+        if data['password'] != data['password2']:
+            raise serializers.ValidationError("Les mots de passe ne correspondent pas.")
+        return data
+
+    def create(self, validated_data):
+        validated_data.pop('password2')
+        password = validated_data.pop('password')
+        user = UserAccount.objects.create(
+            **validated_data,
+            is_active=True,
+            is_gerant=True,
+            is_client=False
+        )
+        user.set_password(password)
+        user.save()
+        return user
+
+class GerantRestaurantRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = UserAccount
+        fields = ['email', 'username', 'first_name', 'last_name', 'password']
+
+    def create(self, validated_data):
+        user = UserAccount.objects.create_user(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            password=validated_data['password'],
+            is_gerant=True,
+            is_client=False,
+        )
+        user.type_gerant = 'restaurant'  # si tu as ce champ
+        user.is_active = True  # pas besoin d'activation email
+        user.save()
+        return user

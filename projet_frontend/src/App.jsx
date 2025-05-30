@@ -41,6 +41,12 @@ import VerificationSuccess from "./pages/VerificationSuccess";
 import MenuRestaurant from "./pages/MenuRestaurant";
 import GererMenu from "./pages/dashboard/GererMenu";
 import RechercheResultats from "./pages/RechercheResultats";
+import ModifierImageChambre from "./pages/dashboard/ModifierImageChambre";
+import AvisFormPage from "./pages/AvisFormPage";
+import LoginGerant from "./pages/auth/LoginGerant";
+import RegisterGerant from "./pages/auth/RegisterGerant";
+import RegisterGerantRestaurant from "./pages/auth/RegisterGerantRestaurant";
+import LoginGerantRestaurant from "./pages/auth/LoginGerantRestaurant";
 
 
 
@@ -87,6 +93,10 @@ function App() {
   element={<ConfigurationHotel />}
 />
 <Route
+  path="/dashboard/images-chambres/:id/modifier"
+  element={<ModifierImageChambre />}
+/>
+<Route
   path="/gerant/etablissement/:etabId/chambres/:chambreId/modifier"
   element={<ModifierChambre />}
 />
@@ -131,6 +141,12 @@ function App() {
           <Route path="/verification-success" element={<VerificationSuccess />} />
           <Route path="/restaurant/:id/menu" element={<MenuRestaurant />} />
           <Route path="/dashboard/gerant-restaurant/menu" element={<GererMenu />} />
+          <Route path="/etablissement/:id/avis" element={<AvisFormPage />} />
+          <Route path="/login-gerant" element={<LoginGerant />} />
+          <Route path="/register-gerant" element={<RegisterGerant />} />
+          <Route path="/register-gerant-restaurant" element={<RegisterGerantRestaurant />} />
+          <Route path="/login-gerant-restaurant" element={<LoginGerantRestaurant />} />
+
           
 
           <Route path="/dashboard/restaurant/:id/tables" element={<GestionTablesResto />} />

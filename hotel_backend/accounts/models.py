@@ -38,6 +38,16 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_gerant = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
+    # 🔽 Ajouts spécifiques au gérant
+    type_gerant = models.CharField(
+        max_length=20,
+        choices=[("hotel", "Hôtel"), ("restaurant", "Restaurant")],
+        blank=True,
+        null=True
+    )
+    matricule = models.CharField(max_length=100, blank=True, null=True)
+    date_embauche = models.DateField(blank=True, null=True)
+
     objects = UserAccountManager()
 
     USERNAME_FIELD = 'email'
@@ -165,13 +175,15 @@ class Reservation(models.Model):
         return f"{self.client} - {self.etablissement.nom} ({self.type_reservation})"
 
 class Avis(models.Model):
-    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE, related_name='avis')
-    note = models.IntegerField()
+    client = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    etablissement = models.ForeignKey(Etablissement, on_delete=models.CASCADE)
+    note = models.PositiveIntegerField()
     commentaire = models.TextField(blank=True)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Avis {self.note}/5"
+        return f"Avis de {self.client.username} - {self.note}/5"
+
 
 class Paiement(models.Model):
     utilisateur = models.ForeignKey(UserAccount, on_delete=models.CASCADE)

@@ -24,3 +24,7 @@
 html, body, #root {
   @apply m-0 p-0 w-full h-full overflow-x-hidden;
 }
+
+.input {
+  @apply w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white;
+}
