@@ -86,7 +86,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',  # 👈 Obligatoire ici
+        'rest_framework.permissions.IsAuthenticated',  
     )
 }
 
@@ -136,7 +136,7 @@ STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 DOMAIN_FRONTEND = os.getenv("DOMAIN_FRONTEND")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 # settings.py
-DOMAIN_FRONTEND = "http://localhost:5173"  # ou ton vrai domaine
+DOMAIN_FRONTEND = "http://localhost:5173"  
 
 
 # Password validation
@@ -192,12 +192,12 @@ CORS_ALLOWED_ORIGINS = [
 AUTH_USER_MODEL = 'accounts.UserAccount'
 
 
-# === Configuration pour l'envoi d'e-mails via Gmail ===
+# === sa c'est pour la : Configuration pour l'envoi d'e-mails via Gmail ===
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "moustaphakonem@gmail.com"  # 🔁 Remplace par ton vrai email Gmail
-EMAIL_HOST_PASSWORD = "hehtrfmbygkwltsa"    # ✅ ton mot de passe d’application SANS ESPACES
+EMAIL_HOST_USER = "moustaphakonem@gmail.com"  
+EMAIL_HOST_PASSWORD = "hehtrfmbygkwltsa"    
 DEFAULT_FROM_EMAIL = "Luxvia <no-reply@luxvia.com>"
 

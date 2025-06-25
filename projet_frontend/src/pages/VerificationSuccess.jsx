@@ -1,4 +1,4 @@
-// 📁 src/pages/VerificationEmail.jsx
+
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 export default function VerificationEmail() {
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState("loading"); // "loading" | "success" | "error"
+  const [status, setStatus] = useState("loading"); 
   const navigate = useNavigate();
 
   useEffect(() => {

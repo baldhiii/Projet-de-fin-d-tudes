@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 export default function AjouterTable() {
-  const { id } = useParams(); // id du restaurant
+  const { id } = useParams(); 
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -34,7 +34,7 @@ export default function AjouterTable() {
 
     try {
       const data = new FormData();
-      data.append("restaurant", id); // on envoie bien l'id du restaurant
+      data.append("restaurant", id); 
       data.append("numero", formData.numero);
       data.append("capacite", formData.capacite);
       data.append("disponible", formData.disponible);
@@ -48,7 +48,7 @@ export default function AjouterTable() {
         },
       });
 
-      navigate(-1); // revenir à la page précédente
+      navigate(-1); 
     } catch (err) {
       console.error("Erreur ajout table :", err.response?.data || err.message);
     }

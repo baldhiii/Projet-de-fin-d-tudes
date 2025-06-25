@@ -55,7 +55,7 @@ function Home({ isAuthenticated, setIsAuthenticated, userPhoto }) {
     <div
       className={`w-screen min-h-screen overflow-x-hidden ${current.bg} ${current.text} transition-all duration-500`}
     >
-      {/* ✅ Navbar */}
+      
       <Navbar
         theme={theme}
         isAuthenticated={isAuthenticated}
@@ -63,9 +63,9 @@ function Home({ isAuthenticated, setIsAuthenticated, userPhoto }) {
         userPhoto={userPhoto}
       />
 
-      {/* ✅ Diaporama + contenu haut de page */}
+      
       <main className="relative w-full h-screen overflow-hidden">
-        {/* Diaporama en fond */}
+        
         <Slider {...settings} className="absolute inset-0 z-0">
           {images.map((src, index) => (
             <div key={index} className="h-screen w-full">
@@ -77,12 +77,12 @@ function Home({ isAuthenticated, setIsAuthenticated, userPhoto }) {
           ))}
         </Slider>
 
-        {/* Grillage en overlay */}
+        
         <div className="absolute inset-0 bg-[url('/images/grillage.svg')] opacity-20 z-10 pointer-events-none" />
 
-        {/* Contenu superposé */}
+        
         <div className="relative z-20 flex flex-col items-center justify-start pt-32 px-4">
-          {/* Titre + description */}
+          
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +97,7 @@ function Home({ isAuthenticated, setIsAuthenticated, userPhoto }) {
             </p>
           </motion.div>
 
-          {/* ✅ Barre de recherche */}
+          
           <div className="w-full max-w-3xl mb-8">
             <SearchBar
               value={search}
@@ -105,19 +105,19 @@ function Home({ isAuthenticated, setIsAuthenticated, userPhoto }) {
             />
           </div>
 
-          {/* ✅ Animation 3D 
+          {/*  Animation 3D 
           <div className="w-full h-[250px] overflow-hidden mb-8">
             <SplineViewer />
           </div> */}
 
-          {/* ✅ AdvancedSearch juste en dessous du Spline */}
+          
           <div className="w-full max-w-5xl px-4 mb-8">
             <AdvancedSearch />
           </div>
         </div>
       </main>
 
-      {/* ✅ Sections du site */}
+      
       <PopularDestinations />
       <div className="w-full px-4 mb-16">
         <HotelsAlaUne />
@@ -135,7 +135,7 @@ function Home({ isAuthenticated, setIsAuthenticated, userPhoto }) {
       </div>
       <Footer theme={theme} />
 
-      {/* ✅ Thème Switcher */}
+      
       <div className="fixed bottom-6 left-6 flex space-x-3 z-50">
         {Object.keys(themes).map((key) => (
           <button

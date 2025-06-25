@@ -127,7 +127,7 @@ export default function GererMenu() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="pt-24 p-6 max-w-6xl mx-auto">
       <h2 className="text-3xl font-bold mb-6 text-orange-600">🍽️ Gérer le Menu</h2>
 
       <form

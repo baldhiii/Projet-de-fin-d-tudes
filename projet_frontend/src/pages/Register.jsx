@@ -59,7 +59,7 @@ function Register() {
           📝 Créer un compte
         </h2>
 
-        {/* Alertes */}
+        
         <AnimatePresence>
        {successMessage && (
       <Toast
@@ -87,7 +87,7 @@ function Register() {
         </AnimatePresence>
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* Nom d'utilisateur */}
+          
           <div className="relative z-0 w-full group">
             <input
               type="text"
@@ -103,7 +103,7 @@ function Register() {
             </label>
           </div>
 
-          {/* Email */}
+          
           <div className="relative z-0 w-full group">
             <input
               type="email"
@@ -119,7 +119,7 @@ function Register() {
             </label>
           </div>
 
-          {/* Prénom */}
+          
           <div className="relative z-0 w-full group">
             <input
               type="text"
@@ -135,7 +135,7 @@ function Register() {
             </label>
           </div>
 
-          {/* Nom */}
+          
           <div className="relative z-0 w-full group">
             <input
               type="text"
@@ -151,7 +151,7 @@ function Register() {
             </label>
           </div>
 
-          {/* Mot de passe */}
+          
           <div className="relative z-0 w-full group">
             <input
               type={showPassword ? "text" : "password"}
@@ -173,7 +173,7 @@ function Register() {
             </div>
           </div>
 
-          {/* Confirmation mot de passe */}
+          
           <div className="relative z-0 w-full group">
             <input
               type={showRePassword ? "text" : "password"}
@@ -195,7 +195,7 @@ function Register() {
             </div>
           </div>
 
-          {/* Bouton s'inscrire */}
+          
           <motion.button
             whileTap={{ scale: 0.95 }}
             whileHover={{ scale: 1.03 }}

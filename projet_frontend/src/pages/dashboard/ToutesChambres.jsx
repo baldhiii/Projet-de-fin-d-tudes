@@ -47,8 +47,8 @@ export default function ToutesChambres() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <SidebarGerantHotel />
-      <main className="flex-1 p-10 ml-64">
-        <div className="flex justify-between items-center mb-6">
+      <main className="flex-1 p-10 ml-64 pt-24">
+      {/* <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Toutes les chambres</h1>
           <button
             onClick={() => navigate("/gerant/ajouter-chambre")}
@@ -56,7 +56,7 @@ export default function ToutesChambres() {
           >
             ➕ Ajouter une chambre
           </button>
-        </div>
+        </div> */}
 
         <div className="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-200">
           <table className="min-w-full table-auto text-sm">

@@ -67,14 +67,14 @@ function App() {
   return (
     <div className="min-h-screen w-screen overflow-x-hidden">
 
-      {/* ✅ Navbar fixée */}
+      
       <Navbar
         isAuthenticated={isAuthenticated}
         setIsAuthenticated={setIsAuthenticated}
         userPhoto={userPhoto}
       />
 
-      {/* ✅ Le padding-top est géré ici, donc plus besoin de pt-20 dans les pages */}
+      
       <div className="">
 
         <Routes>

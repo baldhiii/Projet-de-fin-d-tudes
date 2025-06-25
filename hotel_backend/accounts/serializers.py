@@ -28,7 +28,7 @@ from django.contrib.sites.shortcuts import get_current_site
 
 
 
-# === Serializer pour l'inscription ===
+# ===Pour notre Serializer pour l'inscription ===
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
@@ -45,17 +45,17 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
         user = UserAccount.objects.create_user(**validated_data)
-        user.is_active = False  # 🔒 Compte inactif tant que non confirmé
+        user.is_active = False  # du genre le Compte inactif tant que non confirmé par email pour la securité
         user.save()
 
-        # 🔐 Génération token d’activation
+        # Pour la Génération token d’activation essentiel pour notre auth
         request = self.context.get('request')
         current_site = get_current_site(request)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
         activation_link = f"http://{current_site.domain}/activation/{uid}/{token}/"
 
-        # 📧 Envoi de l’email
+        # Pour envoi de l’email
         send_mail(
             subject="Activez votre compte",
             message=f"Bienvenue {user.first_name}, cliquez sur le lien suivant pour activer votre compte : {activation_link}",
@@ -143,11 +143,10 @@ class ReservationSerializer(serializers.ModelSerializer):
 
     etablissement = serializers.PrimaryKeyRelatedField(
         queryset=Etablissement.objects.all(),
-        required=False  # ⚠️ pour permettre update / patch sans crash
+        required=False  
     )
 
-    client = UserSerializer(read_only=True)  # lecture seule
-    # 👆 utile si admin veut voir qui a réservé
+    client = UserSerializer(read_only=True)  
 
     class Meta:
         model = Reservation
@@ -187,7 +186,7 @@ class ReservationSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         services = validated_data.pop('services', [])
 
-        # ⚠️ pour ne pas écraser si admin crée la réservation manuellement
+        # sa ciest pour ne pas écraser si admin crée la réservation manuellement
         client = request.user if request and request.user.is_authenticated else None
         reservation = Reservation.objects.create(client=client, **validated_data)
         reservation.services.set(services)
@@ -258,7 +257,7 @@ class EtablissementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Etablissement
         fields = '__all__'
-# serializers.py
+
 class DestinationSerializer(serializers.ModelSerializer):
     nombre_hotels = serializers.SerializerMethodField()
     nombre_restaurants = serializers.SerializerMethodField()
@@ -376,7 +375,83 @@ class GerantRestaurantRegisterSerializer(serializers.ModelSerializer):
             is_gerant=True,
             is_client=False,
         )
-        user.type_gerant = 'restaurant'  # si tu as ce champ
-        user.is_active = True  # pas besoin d'activation email
+        user.type_gerant = 'restaurant'  
+        user.is_active = True  
         user.save()
         return user
+    
+class ReservationRestaurantGerantSerializer(serializers.ModelSerializer):
+    client = serializers.SerializerMethodField()
+    etablissement = serializers.SerializerMethodField()
+    table = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Reservation
+        fields = [
+            'id',
+            'client',
+            'etablissement',
+            'table',
+            'date_debut',
+            'statut'
+        ]
+
+    def get_client(self, obj):
+        return {
+            "id": obj.client.id,
+            "first_name": obj.client.first_name,
+            "last_name": obj.client.last_name
+        }
+
+    def get_etablissement(self, obj):
+        if obj.etablissement:
+            return {
+                "id": obj.etablissement.id,
+                "nom": obj.etablissement.nom
+            }
+        return {"nom": "Non défini"}
+
+    def get_table(self, obj):
+        if obj.table:
+            return {
+                "id": obj.table.id,
+                "numero": obj.table.numero,
+                "capacite": obj.table.capacite
+            }
+        return {"numero": "N/A", "capacite": "-"}
+
+    
+class ReservationGerantSerializer(serializers.ModelSerializer):
+    client = serializers.SerializerMethodField()
+    etablissement = serializers.SerializerMethodField()
+    chambre = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Reservation
+        fields = [
+            'id', 'client', 'etablissement', 'chambre',
+            'date_debut', 'date_fin', 'statut'
+        ]
+
+    def get_client(self, obj):
+        return {
+            "id": obj.client.id,
+            "first_name": obj.client.first_name,
+            "last_name": obj.client.last_name,
+        }
+
+    def get_etablissement(self, obj):
+        if obj.etablissement:
+            return {
+                "id": obj.etablissement.id,
+                "nom": obj.etablissement.nom,
+            }
+        return None
+
+    def get_chambre(self, obj):
+        if obj.chambre:
+            return {
+                "id": obj.chambre.id,
+                "nom": obj.chambre.nom,
+            }
+        return None

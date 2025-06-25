@@ -35,7 +35,7 @@ export default function RechercheResultats() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* ✅ Bouton simple à la place de Navbar */}
+      
       <div className="bg-white px-6 py-4 shadow-sm mt-4">
         <button
           onClick={() => navigate("/")}

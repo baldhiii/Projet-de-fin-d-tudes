@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import api from "../services/api";
 
 export default function UploadImagesChambre() {
-  const { id } = useParams(); // ID de la chambre récupéré depuis l’URL
+  const { id } = useParams(); 
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -23,7 +23,7 @@ export default function UploadImagesChambre() {
       for (const file of files) {
         const formData = new FormData();
         formData.append("image", file);
-        formData.append("chambre", id); // ✅ id bien passé comme string
+        formData.append("chambre", id); 
 
         const response = await api.post("/auth/images-chambre/", formData, {
           headers: {

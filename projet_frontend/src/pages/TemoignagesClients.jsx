@@ -42,7 +42,7 @@ export default function TemoignagesClients() {
           </div>
         </div>
 
-        {/* ✅ Avis réels */}
+        
         <h3 className="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-white">
           Avis vérifiés des utilisateurs
         </h3>

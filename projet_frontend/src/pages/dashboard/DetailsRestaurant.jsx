@@ -1,17 +1,16 @@
-// 📁 src/pages/dashboard/DetailsRestaurant.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 export default function DetailsRestaurant() {
-  const { id } = useParams(); // ID du restaurant
+  const { id } = useParams(); 
   const navigate = useNavigate();
 
   const [restaurant, setRestaurant] = useState(null);
   const [tables, setTables] = useState([]);
 
   useEffect(() => {
-    // Charger les infos du restaurant
+    
     async function fetchData() {
       try {
         const [resEtab, resTables] = await Promise.all([
@@ -30,7 +29,7 @@ export default function DetailsRestaurant() {
   if (!restaurant) return <p>Chargement...</p>;
 
   return (
-    <div className="p-6">
+    <div className="p-6 pt-24">
       {/* Infos du restaurant */}
       <h1 className="text-3xl font-bold text-gray-800 mb-4">{restaurant.nom}</h1>
       <p className="text-gray-600 mb-2">{restaurant.description}</p>

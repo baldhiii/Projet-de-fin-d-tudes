@@ -1,4 +1,4 @@
-// 📁 src/components/PourquoiChoisirLuxvia.jsx
+// dans src/components/PourquoiChoisirLuxvia.jsx
 import { ShieldCheck, Star, Smartphone, Settings2 } from "lucide-react";
 
 export default function PourquoiChoisirLuxvia() {

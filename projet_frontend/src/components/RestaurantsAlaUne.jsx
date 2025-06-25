@@ -1,4 +1,4 @@
-// 📁 src/components/RestaurantsAlaUne.jsx
+// in src/components/RestaurantsAlaUne.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";

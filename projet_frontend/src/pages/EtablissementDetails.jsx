@@ -33,20 +33,20 @@ const [selectedTableId, setSelectedTableId] = useState(null);
   
     const headers = { headers: { Authorization: `Bearer ${token}` } };
   
-    // Étape 1 : Chargement de l’établissement
+    
     axios
       .get(`http://localhost:8000/api/auth/etablissements/${id}/`, headers)
       .then((res) => {
         const etab = res.data;
         setEtablissement(etab);
   
-        // Étape 2 : Chargement des images
+        
         axios
           .get(`http://localhost:8000/api/auth/etablissements/${id}/images/`, headers)
           .then((res) => setImages(res.data))
           .catch(() => toast.error("Erreur lors du chargement des images"));
   
-        // Étape 3 : selon le type, charger les chambres ou les tables
+        
         if (etab.type === "hotel") {
           axios
   .get(`http://localhost:8000/api/auth/avis/permission/${id}/`, headers)
@@ -89,7 +89,7 @@ const [selectedTableId, setSelectedTableId] = useState(null);
 
   return (
     <div className="px-6 pt-32 pb-10 max-w-7xl mx-auto">
-      {/* ✅ Nom et description */}
+      
       <h1 className="text-4xl font-extrabold text-center text-cyan-700 mb-2">
         {etablissement.nom}
       </h1>
@@ -97,7 +97,7 @@ const [selectedTableId, setSelectedTableId] = useState(null);
         {etablissement.description}
       </p>
 
-      {/* ✅ Image principale */}
+      
       {etablissement.image ? (
         <div className="mb-12 text-center">
           <h2 className="text-xl font-semibold text-gray-800 mb-3">
@@ -115,7 +115,7 @@ const [selectedTableId, setSelectedTableId] = useState(null);
         </p>
       )}
 
-      {/* ✅ Images secondaires */}
+      
       <div className="mb-16">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           Autres images
@@ -139,8 +139,7 @@ const [selectedTableId, setSelectedTableId] = useState(null);
         )}
       </div>
 
-      {/* ✅ Chambres disponibles */}
-      {/* ✅ Chambres ou Tables selon le type d'établissement */}
+     
 {etablissement.type === "hotel" && (
   <div className="mt-12">
     <h2 className="text-2xl font-bold text-gray-800 mb-6">
@@ -203,7 +202,7 @@ const [selectedTableId, setSelectedTableId] = useState(null);
         key={table.id}
         className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 transition hover:shadow-xl"
       >
-        {/* ✅ Affiche l’image si elle existe */}
+        
         {table.image && (
           <img
             src={table.image}

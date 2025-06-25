@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../services/api"; // Assure-toi que ce fichier existe bien
+import api from "../services/api"; 
 
 export default function ReservationsRecente() {
   const [reservations, setReservations] = useState([]);

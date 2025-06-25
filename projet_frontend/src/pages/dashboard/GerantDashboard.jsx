@@ -1,4 +1,3 @@
-// 📁 src/pages/dashboard/DashboardGerantHotel.jsx
 import { useEffect, useState } from "react";
 import SidebarGerantHotel from "../../components/SidebarGerantHotel";
 import DernieresReservations from "../../components/DernieresReservations";
@@ -37,12 +36,12 @@ export default function DashboardGerantHotel() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <SidebarGerantHotel />
-      <main className="flex-1 p-10 ml-64">
+      <main className="flex-1 p-10 ml-64 pt-24">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
           Vue d’ensemble de votre établissement
         </h1>
 
-        {/* === Infos du gérant === */}
+        {/* === pour infos du gérant === */}
         {profil && (
           <div className="bg-white shadow rounded-xl p-6 mb-6 flex items-center gap-6">
             <FaUserCircle className="text-5xl text-indigo-600" />
@@ -58,7 +57,7 @@ export default function DashboardGerantHotel() {
           </div>
         )}
 
-        {/* === Statistiques principales === */}
+        {/* === et là Statistiques principales === */}
         {stats && (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -139,7 +138,7 @@ export default function DashboardGerantHotel() {
               </div>
             </div>
 
-            {/* ✅ Réservations récentes */}
+            {/*  Réservations récentes */}
             <DernieresReservations />
           </>
         )}

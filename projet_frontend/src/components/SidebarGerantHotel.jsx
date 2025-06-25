@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 
 const links = [
-  { name: "Dashboard", path: "/dashboard/gerant", icon: <FaHome /> },
+  { name: "Dashboard", path: "/gerant/dashboard", icon: <FaHome /> },
   { name: "Configuration Hôtel", path: "/gerant/configuration", icon: <FaCog /> },
   { name: "Chambres", path: "/gerant/chambres", icon: <FaBed /> },
   { name: "Réservations", path: "/gerant/reservations", icon: <FaCalendarAlt /> },

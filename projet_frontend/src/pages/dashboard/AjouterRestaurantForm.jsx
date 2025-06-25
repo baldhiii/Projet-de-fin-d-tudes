@@ -11,8 +11,8 @@ export default function AjouterRestaurantForm() {
     description: "",
     adresse: "",
     telephone: "",
-    destination: "", // ID destination
-    type: "restaurant", // Fixé
+    destination: "", 
+    type: "restaurant", 
   });
 
   const [image, setImage] = useState(null);

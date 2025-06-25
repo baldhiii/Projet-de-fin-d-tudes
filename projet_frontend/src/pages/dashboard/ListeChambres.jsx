@@ -1,11 +1,10 @@
-// 📁 src/pages/dashboard/ListeChambres.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import SidebarGerantHotel from "../../components/SidebarGerantHotel";
 
 export default function ListeChambres() {
-  const { id } = useParams(); // id de l’établissement
+  const { id } = useParams(); 
   const [chambres, setChambres] = useState([]);
   const navigate = useNavigate();
 
@@ -36,12 +35,12 @@ export default function ListeChambres() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <SidebarGerantHotel />
-      <main className="flex-1 p-10 ml-64">
+      <main className="flex-1 p-10 ml-64 pt-24">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
           Chambres de l’établissement
         </h1>
 
-        {/* Bouton ajouter une chambre */}
+        {/* pour ajouter une chambre */}
         <div className="flex justify-end mb-4">
           <button
             onClick={() => navigate(`/gerant/etablissement/${id}/ajouter-chambre`)}
@@ -51,7 +50,7 @@ export default function ListeChambres() {
           </button>
         </div>
 
-        {/* Liste des chambres */}
+        {/* Voir la Liste des chambres */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {chambres.map((chambre) => (
             <div
@@ -94,6 +93,20 @@ export default function ListeChambres() {
                   >
                     📷 Ajouter des photos
                   </button>
+                  <button
+  onClick={() => {
+    const imageId = chambre.images?.[0]?.id;
+    if (imageId) {
+      navigate(`/dashboard/images-chambres/${imageId}/modifier`);
+    } else {
+      alert("Aucune image à modifier.");
+    }
+  }}
+  className="px-4 py-1 text-sm text-white bg-indigo-600 rounded hover:bg-indigo-700"
+>
+  ✏️ Modifier les photos
+</button>
+
                 </div>
               </div>
 

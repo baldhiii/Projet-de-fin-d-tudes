@@ -9,8 +9,7 @@ export default function ReservationsRestaurant() {
     const fetchReservations = async () => {
       try {
         const res = await api.get("/accounts/reservations-gerant-restaurant/");
-        const filtered = res.data.filter(r => r.type_reservation === "restaurant");
-        setReservations(filtered);
+        setReservations(res.data);
       } catch (error) {
         console.error("Erreur chargement réservations :", error);
       }
@@ -33,7 +32,7 @@ export default function ReservationsRestaurant() {
     <div className="flex min-h-screen bg-gray-50">
       <SidebarGerantRestaurant />
 
-      <main className="flex-1 p-10 ml-64">
+      <main className="flex-1 p-10 ml-64 pt-24">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
           Réservations de vos Restaurants
         </h1>
@@ -71,12 +70,14 @@ export default function ReservationsRestaurant() {
                       />
                     ) : null}
                     <span className="text-cyan-700 font-medium">
-                      {res.table?.numero ? `Table ${res.table.numero}` : "N/A"}
+                      {res.table?.numero
+                        ? `Table ${res.table.numero} (${res.table.capacite} pers)`
+                        : "N/A"}
                     </span>
                   </td>
                   <td className="px-4 py-2">
-                    {res.date_reservation
-                      ? new Date(res.date_reservation).toLocaleString("fr-FR")
+                    {res.date_debut
+                      ? new Date(res.date_debut).toLocaleString("fr-FR")
                       : "N/A"}
                   </td>
                   <td className="px-4 py-2">
@@ -119,5 +120,6 @@ export default function ReservationsRestaurant() {
     </div>
   );
 }
+
 
 

@@ -90,7 +90,7 @@ export default function ModifierChambre() {
       await api.patch(`/accounts/chambres/${chambreId}/`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      navigate(-1); // Retour à la liste
+      navigate(-1); 
     } catch (error) {
       console.error("Erreur mise à jour chambre:", error);
       setErrorMessage("Erreur lors de la modification de la chambre.");

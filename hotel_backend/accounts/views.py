@@ -48,8 +48,8 @@ from .serializers import (
     PaiementSerializer,
     EtablissementFavoriSerializer,
     NotificationSerializer,
-    ServiceSupplementaireSerializer,
-    ImageEtablissementSerializer,  AvantageSerializer, DemandeGerantSerializer, ChambreDetailSerializer
+    ServiceSupplementaireSerializer, ReservationRestaurantGerantSerializer,
+    ImageEtablissementSerializer,  AvantageSerializer, DemandeGerantSerializer, ChambreDetailSerializer, ReservationGerantSerializer
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -90,7 +90,7 @@ class ProfileUpdateView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.user
 
-# === CRUD pour les établissements (gérant uniquement) ===
+
 # === CRUD pour les établissements (gérant uniquement) ===
 class EtablissementViewSet(viewsets.ModelViewSet):
     queryset = Etablissement.objects.all()
@@ -216,7 +216,7 @@ class PaiementViewSet(viewsets.ModelViewSet):
         serializer.save(utilisateur=self.request.user)
 
 
-# === Favoris (client uniquement) ===
+# === Favoris Peut etre qu'on l'utilisera plus tard(client uniquement) ===
 class EtablissementFavoriViewSet(viewsets.ModelViewSet):
     serializer_class = EtablissementFavoriSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -228,7 +228,7 @@ class EtablissementFavoriViewSet(viewsets.ModelViewSet):
         serializer.save(utilisateur=self.request.user)
 
 
-# === Notifications ===
+# === Notifications Peut etre qu'on l'utilisera plus tard===
 class NotificationViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -267,7 +267,7 @@ class ImageEtablissementViewSet(viewsets.ModelViewSet):
 
         serializer.save(etablissement=etablissement)
     
-# === Vues publiques (clients non connectés) ===
+# === Pour les Vues publiques du genre les clients non connectés ===
 class HotelsPublicListView(generics.ListAPIView):
     serializer_class = EtablissementSerializer
     permission_classes = [permissions.AllowAny]
@@ -302,7 +302,7 @@ class DestinationStatsView(APIView):
             hotels = Etablissement.objects.filter(type='hotel', ville=ville).count()
             restaurants = Etablissement.objects.filter(type='restaurant', ville=ville).count()
 
-            # On pourrait personnaliser les images plus tard selon la ville
+            
             results.append({
                 "ville": ville,
                 "nombre_hotels": hotels,
@@ -319,7 +319,7 @@ class DestinationListAPIView(generics.ListAPIView):
 
 @api_view(['GET'])
 def chambres_par_etablissement(request, id):
-    chambres = Chambre.objects.filter(hotel=id)  # ✅ adapte ici
+    chambres = Chambre.objects.filter(hotel=id)  
     serializer = ChambreSerializer(chambres, many=True)
     return Response(serializer.data)
 @api_view(['GET'])
@@ -371,7 +371,7 @@ class StatsClientView(APIView):
     def get(self, request):
         user = request.user
 
-        # 🔢 Statistiques sur les réservations
+        # Pour les Statistiques sur les réservations
         reservations = Reservation.objects.filter(client=user)
         total_reservations = reservations.count()
         reservations_hotel = reservations.filter(type_reservation="hotel").count()
@@ -379,7 +379,7 @@ class StatsClientView(APIView):
         reservations_confirmees = reservations.filter(statut="confirmee").count()
         reservations_annulees = reservations.filter(statut="annulee").count()
 
-        # 💰 Total des dépenses réussies
+        # Pour le Total des dépenses réussies
         total_depenses = Paiement.objects.filter(
             utilisateur=user,
             statut="reussi"
@@ -388,10 +388,10 @@ class StatsClientView(APIView):
         # 🗣️ Nombre d'avis publiés
         nb_avis = Avis.objects.filter(client=user).count()
 
-        # 🎁 Calcul des points fidélité (1 MAD = 10 points)
+        # Pour le Calcul des points fidélité (1 MAD = 10 points)
         points_fidelite = int(total_depenses * 10)
 
-        # 🏅 Définir le statut en fonction des points
+        # Pour Définir le statut en fonction des points
         if points_fidelite >= 2000:
             statut = "Platinum"
         elif points_fidelite >= 1000:
@@ -401,7 +401,7 @@ class StatsClientView(APIView):
         else:
             statut = "Bronze"
 
-        # 🔄 Réponse complète
+       
         return Response({
             "total_reservations": total_reservations,
             "reservations_hotel": reservations_hotel,
@@ -416,7 +416,7 @@ class StatsClientView(APIView):
     
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # accès public autorisé
+@permission_classes([AllowAny])  
 def tables_par_etablissement(request, id):
     try:
         etablissement = Etablissement.objects.get(id=id, type='restaurant')
@@ -454,7 +454,7 @@ class CheckoutSessionView(APIView):
         except Reservation.DoesNotExist:
             return Response({"error": "Réservation introuvable"}, status=404)
 
-        montant = 50000  # 💰 En centimes : 500 MAD = 50000
+        montant = 50000  
 
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -507,10 +507,10 @@ class StripeWebhookView(APIView):
             try:
                 reservation = Reservation.objects.get(id=reservation_id)
                 reservation.paiement_effectue = True
-                reservation.statut = "confirmee"  # ✅ CHANGEMENT DE STATUT
+                reservation.statut = "confirmee"  
                 reservation.save()
 
-                # ✅ Rendre indisponible la chambre ou table selon le type de réservation
+                # Pour Rendre indisponible la chambre ou table selon le type de réservation
                 if reservation.chambre:
                     reservation.chambre.disponible = False
                     reservation.chambre.save()
@@ -518,7 +518,7 @@ class StripeWebhookView(APIView):
                     reservation.table.disponible = False
                     reservation.table.save()
 
-                # ✅ Enregistrer le paiement
+                # Pour enregistrer le paiement
                 Paiement.objects.create(
                     utilisateur_id=user_id,
                     reservation=reservation,
@@ -558,13 +558,13 @@ class PreReservationView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print("📥 Données reçues :", request.data)  # ← Ajoute cette ligne temporairement
+        print("📥 Données reçues :", request.data)  
 
         serializer = ReservationSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             reservation = serializer.save()
             return Response({"reservation_id": reservation.id}, status=201)
-        print("❌ Erreurs de validation :", serializer.errors)  # ← Ajoute aussi celle-ci
+        print("❌ Erreurs de validation :", serializer.errors)  #
         return Response(serializer.errors, status=400)
 
 class StripePaymentConfirmView(APIView):
@@ -585,7 +585,7 @@ class GerantDashboardOverview(APIView):
         user = request.user
         etablissements = user.etablissements.filter(type="hotel")
 
-        # Paiements du jour
+        
         today = timezone.now().date()
         paiements = Paiement.objects.filter(
     reservation__etablissement__in=etablissements,
@@ -595,7 +595,7 @@ class GerantDashboardOverview(APIView):
 
         revenu_journalier = paiements.aggregate(total=Sum("montant"))["total"] or 0
 
-        # Clients actuels (réservations en cours)
+        # Pour clients actuels 
         now = timezone.now()
         clients_actuels = Reservation.objects.filter(
             etablissement__in=etablissements,
@@ -604,7 +604,7 @@ class GerantDashboardOverview(APIView):
             statut="confirmee"
         ).count()
 
-        # Revenu moyen par chambre
+        # Pour revenu moyen par chambre
         chambres = Chambre.objects.filter(hotel__in=etablissements)
         total_chambres = chambres.count()
         total_paiements = Paiement.objects.filter(utilisateur=user, statut="reussi").aggregate(
@@ -612,7 +612,7 @@ class GerantDashboardOverview(APIView):
         )["total"] or 0
         revenu_par_chambre = round(total_paiements / total_chambres, 2) if total_chambres > 0 else 0
 
-        # Occupation globale
+        # pour occupation globale
         occupees = Reservation.objects.filter(
             chambre__in=chambres,
             date_debut__lte=now,
@@ -624,7 +624,7 @@ class GerantDashboardOverview(APIView):
             "type": "Toutes chambres",
             "total": total_chambres,
             "occupees": occupees,
-            "en_nettoyage": 2,    # valeur statique (optionnel : à rendre dynamique plus tard)
+            "en_nettoyage": 2,    
             "maintenance": 1
         }]
 
@@ -634,6 +634,16 @@ class GerantDashboardOverview(APIView):
             "revenu_par_chambre": revenu_par_chambre,
             "occupation_chambres": occupation_data
         })
+    
+class ReservationGerantListAPIView(generics.ListAPIView):
+    serializer_class = ReservationGerantSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        etablissements = user.etablissements.filter(type="hotel")
+        return Reservation.objects.filter(etablissement__in=etablissements).select_related("client", "etablissement", "chambre")
+
     
 class DernieresReservationsGerantView(APIView):
     permission_classes = [IsAuthenticated]
@@ -648,12 +658,14 @@ class DernieresReservationsGerantView(APIView):
                 "client": r.client.email,
                 "date_debut": r.date_debut,
                 "date_fin": r.date_fin,
-                "montant": None,  # facultatif, à adapter plus tard
+                "montant": None,  
                 "statut": r.statut,
             })
 
         return Response(data)
     
+from .serializers import ReservationGerantSerializer
+
 class ReservationsGerantView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -661,11 +673,12 @@ class ReservationsGerantView(APIView):
         user = request.user
         reservations = Reservation.objects.filter(
             etablissement__gerant=user,
-            type_reservation='hotel'  # ✅ Affiche uniquement les hôtels
-        ).order_by('-date_reservation')
+            type_reservation='hotel'
+        ).select_related("client", "etablissement", "chambre").order_by('-date_reservation')
 
-        serializer = ReservationSerializer(reservations, many=True)
+        serializer = ReservationGerantSerializer(reservations, many=True)
         return Response(serializer.data)
+
     
 class ChambreViewSet(viewsets.ModelViewSet):
     queryset = Chambre.objects.all()
@@ -716,7 +729,7 @@ class GerantRestaurantDashboardView(APIView):
 
         revenu_total = paiements_jour.aggregate(total=Sum("montant"))["total"] or 0
 
-        # Réservations confirmées
+        # Pour les réservations confirmées gang gang gang
         clients_actuels = Reservation.objects.filter(
             etablissement__in=restaurants,
             statut="confirmee"
@@ -732,6 +745,7 @@ class GerantRestaurantDashboardView(APIView):
             "clients_actuels": clients_actuels,
             "revenu_par_table": revenu_par_table
         })
+
 class ReservationsRestaurantGerantView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -739,11 +753,13 @@ class ReservationsRestaurantGerantView(APIView):
         user = request.user
         reservations = Reservation.objects.filter(
             etablissement__gerant=user,
-            type_reservation='restaurant'  # ✅ Seulement les restaurants
-        ).order_by('-date_reservation')
+            type_reservation='restaurant'
+        ).select_related("client", "etablissement", "table").order_by('-date_reservation')
 
-        serializer = ReservationSerializer(reservations, many=True)
+        serializer = ReservationRestaurantGerantSerializer(reservations, many=True)
         return Response(serializer.data)
+
+
     
 class HotelsDuGerantAPIView(ListAPIView):
     serializer_class = EtablissementSerializer
@@ -804,7 +820,7 @@ class ChambreUpdateAPIView(RetrieveUpdateAPIView):
     queryset = Chambre.objects.all()
     serializer_class = ChambreDetailSerializer
 
-class ChambreDetailAPIView(RetrieveUpdateAPIView):  # ✅ au lieu de RetrieveAPIView
+class ChambreDetailAPIView(RetrieveUpdateAPIView):  
     queryset = Chambre.objects.all()
     serializer_class = ChambreDetailSerializer
     permission_classes = [IsAuthenticated]
@@ -845,7 +861,7 @@ class ActivateUserView(APIView):
         if user and default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
-            # Rediriger vers le login du frontend (modifie l'URL selon ton projet)
+            
             return redirect("http://localhost:5173/login?activated=true")
         else:
             return redirect("http://localhost:5173/login?error=invalid-link")
@@ -862,7 +878,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 class MenuGerantViewSet(viewsets.ModelViewSet):
     serializer_class = MenuSerializer
     permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [JSONParser, MultiPartParser, FormParser]  # ✅ accepte tous les formats
+    parser_classes = [JSONParser, MultiPartParser, FormParser] 
 
     def get_queryset(self):
         return Menu.objects.filter(restaurant__gerant=self.request.user)
@@ -876,7 +892,7 @@ class MenuGerantViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         restaurant = serializer.validated_data.get('restaurant')
 
-    # ✅ Si aucun restaurant n'est envoyé (modif partielle), on récupère depuis l'objet instance
+    
         if restaurant is None:
            restaurant = serializer.instance.restaurant
 
@@ -900,7 +916,7 @@ def recherche_etablissements(request):
         date_debut = datetime.fromisoformat(date_debut)
         date_fin = datetime.fromisoformat(date_fin)
 
-        # Exclure les établissements ayant des réservations actives pour cette période
+       
         etablissements = etablissements.exclude(
             Q(reservation__date_debut__lt=date_fin) &
             Q(reservation__date_fin__gt=date_debut) &
@@ -915,7 +931,7 @@ class ImageChambreUpdateAPIView(generics.UpdateAPIView):
     serializer_class = ImageChambreSerializer
 
 class AvisListeGlobaleAPIView(generics.ListAPIView):
-    queryset = Avis.objects.select_related("client").order_by("-date")[:10]  # ✅ champ "date"
+    queryset = Avis.objects.select_related("client").order_by("-date")[:10]  
     serializer_class = AvisSerializer
     permission_classes = [AllowAny]
     
@@ -930,7 +946,7 @@ class AvisCreateAPIView(generics.CreateAPIView):
         if not etablissement_id:
             return Response({"detail": "Établissement requis."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # ✅ Vérifie que le client a une réservation terminée
+        # Pour Vérifier que le client a une réservation terminée
         reservation_existe = Reservation.objects.filter(
             client=client,
             etablissement_id=etablissement_id,
@@ -943,7 +959,7 @@ class AvisCreateAPIView(generics.CreateAPIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # ✅ Vérifie que le client n’a pas déjà laissé un avis
+        # Pour Vérifier que le client n’a pas déjà laissé un avis
         avis_existe = Avis.objects.filter(
             client=client,
             etablissement_id=etablissement_id
@@ -955,7 +971,7 @@ class AvisCreateAPIView(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # ✅ Valide les données restantes et crée l'avis
+        # Pour Valider les données restantes et crée l'avis
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -985,7 +1001,7 @@ def peut_laisser_avis(request, etablissement_id):
 from rest_framework.permissions import AllowAny
 
 class RegisterGerantView(APIView):
-    permission_classes = [AllowAny]  # ✅ rend la vue publique
+    permission_classes = [AllowAny]  
 
     def post(self, request):
         serializer = GerantRegisterSerializer(data=request.data)
@@ -1013,3 +1029,24 @@ class RestaurantsDuGerantAPIView(ListAPIView):
             gerant=self.request.user,
             type="restaurant"
         )
+
+
+class ImageChambreViewSet(viewsets.ModelViewSet):
+    queryset = ImageChambre.objects.all()
+    serializer_class = ImageChambreSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        
+        return ImageChambre.objects.filter(chambre__hotel__gerant=self.request.user)
+
+    def perform_create(self, serializer):
+        chambre_id = self.request.data.get("chambre")
+        image_count = ImageChambre.objects.filter(chambre_id=chambre_id).count()
+        if image_count >= 5:  # Limite d'images si tu veux
+            raise serializers.ValidationError("Limite de 5 images atteinte pour cette chambre.")
+        serializer.save()
+
+class ImageChambreDetailAPIView(RetrieveAPIView):
+    queryset = ImageChambre.objects.all()
+    serializer_class = ImageChambreSerializer 

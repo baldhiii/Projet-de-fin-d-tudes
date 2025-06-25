@@ -11,7 +11,7 @@ export default function TableDetails() {
   useEffect(() => {
     api.get(`/auth/tables/${id}/`)
       .then((res) => {
-        console.log("✅ Table récupérée :", res.data);
+        console.log(" Table récupérée :", res.data);
         setTable(res.data);
       })
       .catch(() => console.error("Erreur récupération table"));
@@ -67,7 +67,7 @@ export default function TableDetails() {
             </p>
           </div>
 
-          {/* Bouton Réservation */}
+          
           <div className="text-center mt-10">
             <button
               onClick={() => {

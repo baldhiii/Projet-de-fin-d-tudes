@@ -77,12 +77,12 @@ setRestaurants(restoRes.data);
         {/* === 3. Liste des restaurants === */}
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Mes Restaurants</h1>
-          <button
+          {/*<button
             onClick={() => navigate("/dashboard/restaurant/ajouter")}
             className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
           >
             + Ajouter un restaurant
-          </button>
+          </button>*/}
         </div>
 
         {loading ? (

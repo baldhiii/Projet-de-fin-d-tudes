@@ -1,4 +1,4 @@
-// 📁 src/pages/dashboard/ConfigurationHotel.jsx
+
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import SidebarGerantHotel from "../../components/SidebarGerantHotel";
@@ -23,18 +23,19 @@ setEtablissements(response.data);
   return (
     <div className="flex min-h-screen bg-gray-50">
       <SidebarGerantHotel />
-      <main className="flex-1 p-10 ml-64">
+      <main className="flex-1 p-10 ml-64 pt-24">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
           Configuration de vos Hôtels
         </h1>
 
         <div className="flex justify-end mb-4">
-          <button
+          {/*<button
             onClick={() => navigate("/gerant/ajouter-etablissement")}
             className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
           >
             ➕ Ajouter un hôtel
           </button>
+          */}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

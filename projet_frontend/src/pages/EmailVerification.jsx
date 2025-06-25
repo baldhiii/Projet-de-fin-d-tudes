@@ -6,7 +6,7 @@ export default function EmailVerification() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      // facultatif : redirection auto après quelques minutes
+      
     }, 60000);
     return () => clearTimeout(timer);
   }, []);

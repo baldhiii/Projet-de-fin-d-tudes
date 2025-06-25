@@ -5,15 +5,15 @@ export default function PaymentSuccess() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Marquer le paiement comme confirmé
+    
     localStorage.setItem("paymentConfirmed", "ok");
 
-    // Redirection automatique après 3 secondes
+    
     const timeout = setTimeout(() => {
-      navigate("/dashboard/client"); // Ou remplace par /dashboard/client si tu préfères
+      navigate("/dashboard/client"); 
     }, 3000);
 
-    return () => clearTimeout(timeout); // Nettoyer si composant démonté
+    return () => clearTimeout(timeout); 
   }, [navigate]);
 
   return (

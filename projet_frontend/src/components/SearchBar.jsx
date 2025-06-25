@@ -1,4 +1,4 @@
-// src/components/SearchBar.jsx
+// dn src/components/SearchBar.jsx
 import { useState, useEffect } from "react";
 import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";

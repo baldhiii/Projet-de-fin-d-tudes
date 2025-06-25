@@ -5,7 +5,7 @@ import axios from "axios";
 export default function MenuRestaurant() {
   const { id } = useParams();
   const [menu, setMenu] = useState([]);
-  const [imageZoom, setImageZoom] = useState(null); // image à afficher en plein écran
+  const [imageZoom, setImageZoom] = useState(null); 
 
   useEffect(() => {
     axios
@@ -15,7 +15,7 @@ export default function MenuRestaurant() {
   }, [id]);
 
   return (
-    <div className="px-6 py-10 max-w-6xl mx-auto relative">
+    <div className="pt-28 px-6 py-10 max-w-6xl mx-auto relative">
       <h1 className="text-3xl font-bold text-center text-orange-600 mb-8">
         🍽️ Menu du restaurant
       </h1>
@@ -49,7 +49,7 @@ export default function MenuRestaurant() {
         <p className="text-center text-gray-500">Aucun plat disponible.</p>
       )}
 
-      {/* ✅ MODAL pour afficher l’image zoomée */}
+      
       {imageZoom && (
         <div
           className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"

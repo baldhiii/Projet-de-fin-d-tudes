@@ -21,8 +21,8 @@ def send_confirmation_email(user_email, client_name, etablissement, date_debut, 
             <h2>Bonjour {client_name},</h2>
             <p>Votre réservation au restaurant <strong>{etablissement}</strong> a été <strong>confirmée</strong>.</p>
             <ul>
-              <li><strong>Date :</strong> {date_debut}</li>
-              <li><strong>Heure :</strong> {date_fin}</li>
+              <li><strong>Date et heure d'arriver :</strong> {date_debut}</li>
+              <li><strong>Date et Heure de partir :</strong> {date_fin}</li>
               <li><strong>Montant :</strong> {montant} MAD</li>
               <li><strong>Référence :</strong> {reference}</li>
             </ul>

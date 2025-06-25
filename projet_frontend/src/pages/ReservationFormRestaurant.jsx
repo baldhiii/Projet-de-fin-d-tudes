@@ -55,7 +55,7 @@ if (paymentStatus === "ok") {
     try {
       const headers = { headers: { Authorization: `Bearer ${token}` } };
   
-      // 1. Création pré-réservation
+      
       const preRes = await axios.post(
         "http://localhost:8000/api/auth/pre-reservation/",
         {
@@ -73,7 +73,7 @@ if (paymentStatus === "ok") {
   
       const reservationId = preRes.data.reservation_id;
   
-      // 2. Démarrer paiement Stripe
+      
       const stripeRes = await axios.post(
         "http://localhost:8000/api/auth/checkout-session/",
         { reservation_id: reservationId },
@@ -178,7 +178,7 @@ if (paymentStatus === "ok") {
         type="datetime-local"
         value={dateFin}
         onChange={(e) => setDateFin(e.target.value)}
-        min={dateDebut} // 🔒 bloque automatiquement les dates < dateDebut
+        min={dateDebut} 
         required
         className="w-full px-4 py-2 border rounded"
       />

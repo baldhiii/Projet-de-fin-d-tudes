@@ -80,7 +80,7 @@ export default function ClientDashboard() {
           <StatsFidelite />
         </div>
 
-        {/* 📊 STATS + ONGLET SWITCH */}
+        {/*  STATS + ONGLET SWITCH */}
         <div className="mt-4">
           <StatsResume />
 
@@ -111,7 +111,7 @@ export default function ClientDashboard() {
             </button>
           </div>
 
-          {/* 🧩 CONTENU PAR ONGLET */}
+          {/*  CONTENU PAR ONGLET */}
           <div className="mt-4">
             {ongletActif === "reservations" && <SectionReservations reservations={reservations} />}
             {ongletActif === "activite" && <SectionActivite activites={activites} />}

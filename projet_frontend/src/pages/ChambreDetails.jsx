@@ -25,7 +25,7 @@ export default function ChambreDetails() {
 
   if (!chambre) return <div className="p-8 text-center text-gray-500">Chargement des détails...</div>;
 
-  // 🔁 Supprimer les doublons d’images
+  
   const uniqueImages = Array.from(new Map(
     chambre.images?.map(img => [img.image, img])
   ).values());
@@ -70,9 +70,9 @@ export default function ChambreDetails() {
         )}
       </div>
 
-      {/* 🧪 Bloc de test brut */}
+      {/* un Bloc de test brut */}
       <div className="mt-10">
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">🧪 Test d’affichage direct (hors Slider)</h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-4">Regardez par vous même</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {uniqueImages.map((img, index) => (
             <img
@@ -85,7 +85,7 @@ export default function ChambreDetails() {
         </div>
       </div>
 
-      {/* Détails chambre */}
+     
       <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-800 text-lg">
         <p><span className="font-semibold text-indigo-700">🛏 Description :</span> {chambre.description}</p>
         <p><span className="font-semibold text-indigo-700">👥 Capacité :</span> {chambre.capacite} personne(s)</p>
@@ -94,7 +94,7 @@ export default function ChambreDetails() {
         
       </div>
 
-      {/* Bouton */}
+      
       <div className="text-center mt-12">
       <button
   onClick={() => {

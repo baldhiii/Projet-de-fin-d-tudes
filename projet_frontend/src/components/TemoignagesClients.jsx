@@ -45,7 +45,7 @@ export default function TemoignagesClients() {
         💬 Ce que disent nos clients
       </h2>
 
-      {/* ✅ Avis virtuels */}
+      {/*  Avis virtuels */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto mb-12">
         {avisVirtuels.map((avis, index) => (
           <div
@@ -70,7 +70,7 @@ export default function TemoignagesClients() {
         ))}
       </div>
 
-      {/* ✅ Avis réels dynamiques */}
+      {/*  Avis réels dynamiques */}
       {avisReels.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
           {avisReels.map((avis, index) => (

@@ -4,7 +4,7 @@ import api from "../../services/api";
 import SidebarGerantHotel from "../../components/SidebarGerantHotel";
 
 export default function AjouterChambre() {
-  const { etabId } = useParams(); // ✅ ID de l’établissement passé dans l’URL
+  const { etabId } = useParams(); 
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -37,7 +37,7 @@ export default function AjouterChambre() {
       data.append(key, formData[key]);
     }
 
-    // ✅ Ajoute le lien avec l’établissement
+    
     data.append("hotel", etabId);
 
     if (image) {
@@ -48,7 +48,7 @@ export default function AjouterChambre() {
       await api.post("/accounts/chambres/", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      navigate(-1); // 🔁 Retour à la page précédente
+      navigate(-1); 
     } catch (error) {
       console.error("Erreur lors de l'ajout de la chambre:", error);
       setErrorMessage("Une erreur est survenue. Veuillez vérifier les champs.");
@@ -58,7 +58,7 @@ export default function AjouterChambre() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <SidebarGerantHotel />
-      <main className="flex-1 p-10 ml-64">
+      <main className="flex-1 p-10 ml-64 pt-24">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Ajouter une chambre</h1>
 
         {errorMessage && (

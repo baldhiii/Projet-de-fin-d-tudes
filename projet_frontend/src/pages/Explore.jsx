@@ -62,7 +62,7 @@ export default function Explore() {
           </button>
         </div>
 
-        {/* Grille des établissements */}
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {etablissementsFiltres.map((etab, index) => (
             <motion.div
@@ -96,7 +96,7 @@ export default function Explore() {
         </div>
       </div>
 
-      {/* ✅ Switch Thème */}
+      
       <div className="fixed bottom-6 left-6 flex space-x-3 z-50">
         {Object.keys(themes).map((key) => (
           <button

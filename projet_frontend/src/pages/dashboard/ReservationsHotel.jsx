@@ -33,7 +33,7 @@ export default function ReservationsHotel() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <SidebarGerantHotel />
-      <main className="flex-1 p-10 ml-64">
+      <main className="flex-1 p-10 ml-64 pt-24">
         <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -61,7 +61,7 @@ export default function ReservationsHotel() {
                 {reservations.map((r) => (
                   <tr key={r.id} className="border-b text-sm text-gray-700 hover:bg-gray-50 transition">
                     <td className="px-4 py-3">{r.client?.first_name || "N/A"}</td>
-                    <td className="px-4 py-3">{r.etablissement?.nom}</td>
+                    <td className="px-4 py-3">{r.etablissement?.nom || "N/A"}</td>
                     <td className="px-4 py-3">{r.chambre?.nom || "N/A"}</td>
                     <td className="px-4 py-3">
                       {r.date_debut ? (

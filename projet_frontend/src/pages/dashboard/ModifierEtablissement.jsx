@@ -73,7 +73,7 @@ export default function ModifierEtablissement() {
       data.append("destination", destinationValue);
     }
 
-    console.log("Payload envoyé :", [...data.entries()]); // 🔍 debug
+    console.log("Payload envoyé :", [...data.entries()]); 
 
     try {
       await api.patch(`/accounts/etablissements/${id}/`, data, {

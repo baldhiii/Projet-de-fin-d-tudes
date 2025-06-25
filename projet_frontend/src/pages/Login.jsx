@@ -1,4 +1,4 @@
-// src/pages/Login.jsx
+
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -61,7 +61,7 @@ function Login({ setIsAuthenticated }) {
             </label>
           </div>
 
-          {/* Mot de passe avec icône */}
+          
           <div className="relative z-0 w-full group">
             <input
               type={showPassword ? "text" : "password"}
@@ -83,7 +83,7 @@ function Login({ setIsAuthenticated }) {
             </div>
           </div>
 
-          {/* Erreur */}
+          
           {error && (
             <motion.p
               initial={{ opacity: 0, y: -10 }}
@@ -95,7 +95,7 @@ function Login({ setIsAuthenticated }) {
             </motion.p>
           )}
 
-          {/* Bouton */}
+         
           <motion.button
             whileTap={{ scale: 0.95 }}
             whileHover={{ scale: 1.03 }}

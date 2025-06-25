@@ -12,7 +12,7 @@ export default function SidebarGerantRestaurant() {
   const location = useLocation();
 
   return (
-    <aside className="w-64 h-screen bg-white shadow-lg border-r border-gray-200 fixed top-0 left-0 z-10">
+    <aside className="w-64 h-screen bg-white shadow-lg border-r border-gray-200 fixed top-0 left-0 z-50">
       <div className="p-6">
         <h2 className="text-2xl font-bold text-indigo-600 mb-8">Luxvia Resto</h2>
 

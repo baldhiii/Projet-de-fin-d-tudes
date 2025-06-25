@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { getUserProfile, updateUserProfile } from "../services/userService";
 import { uploadProfilePicture } from "../services/uploadService";
-import api from "../services/api"; // <- C'était oublié chez toi ici
+import api from "../services/api"; 
 import "react-toastify/dist/ReactToastify.css";
 import { toast } from "react-toastify";
 
@@ -38,7 +38,7 @@ function MonCompte() {
   const [loading, setLoading] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
 
-  // Charger le profil depuis API ou localStorage
+  
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -66,7 +66,7 @@ function MonCompte() {
   const updateLocalStorageProfile = (newProfile) => {
     setProfile(newProfile);
     localStorage.setItem("userProfile", JSON.stringify(newProfile));
-    window.dispatchEvent(new Event("profileUpdated")); // 🔥 custom event pour la Navbar
+    window.dispatchEvent(new Event("profileUpdated")); 
   };
 
   const handleChange = (e) => {
@@ -138,7 +138,7 @@ function MonCompte() {
       >
         <h1 className="text-3xl font-bold text-center text-blue-700 mb-8">Mon Profil</h1>
 
-        {/* Avatar actuel */}
+        
         <div className="flex flex-col items-center mb-8">
           <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 shadow-lg">
             {profile.profile_picture ? (
@@ -153,7 +153,7 @@ function MonCompte() {
           </div>
         </div>
 
-        {/* Choix d'avatars */}
+        
         <div className="grid grid-cols-5 gap-4 mb-8">
           {avatars.map((avatar) => (
             <div
@@ -168,7 +168,7 @@ function MonCompte() {
           ))}
         </div>
 
-        {/* Formulaire de modification */}
+        
         <form onSubmit={handleSaveProfile} className="space-y-4 mb-8">
           <input
             type="text"
@@ -203,7 +203,7 @@ function MonCompte() {
           </button>
         </form>
 
-        {/* Toggle section mot de passe */}
+        
         <div className="text-center mb-6">
           <button
             onClick={() => setShowPasswordSection(!showPasswordSection)}
@@ -213,7 +213,7 @@ function MonCompte() {
           </button>
         </div>
 
-        {/* Formulaire changement mot de passe */}
+        
         <AnimatePresence>
           {showPasswordSection && (
             <motion.div

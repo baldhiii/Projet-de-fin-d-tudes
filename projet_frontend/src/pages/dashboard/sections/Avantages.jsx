@@ -1,7 +1,7 @@
 import { FaGift } from "react-icons/fa";
 
 export default function Avantages({ avantages }) {
-  // Vérifie si la donnée reçue est bien un tableau
+  
   if (!Array.isArray(avantages) || avantages.length === 0) {
     return (
       <div className="bg-white shadow-md rounded-xl p-6">

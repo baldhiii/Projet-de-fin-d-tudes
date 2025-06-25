@@ -13,7 +13,7 @@ from .views import PreReservationView, GerantDashboardOverview
 from .views import (
     MesReservationsView,
     ActivitesRecentesView,
-    AvantagesClientView, DernieresReservationsGerantView,  ReservationsGerantView, ChambreViewSet, menu_par_restaurant
+    AvantagesClientView, DernieresReservationsGerantView,  ReservationsGerantView, ChambreViewSet, menu_par_restaurant, ImageChambreDetailAPIView
 )
 from .views import GerantRestaurantDashboardView
 from .views import ReservationsRestaurantGerantView
@@ -28,6 +28,7 @@ from .views import TableDetailAPIView
 from .views import TableUpdateAPIView
 from .views import ActivateUserView, MenuGerantViewSet, recherche_etablissements
 from .views import RegisterGerantView, RegisterGerantRestaurantView, RestaurantsDuGerantAPIView
+from .views import ImageChambreViewSet
 
 
 
@@ -37,6 +38,7 @@ router.register(r'reservations', ReservationViewSet, basename='reservations')
 router.register(r'chambres', ChambreViewSet, basename='chambre')
 router.register(r'tables', TableRestaurantViewSet, basename='tables')
 router.register(r'gerant/menu', MenuGerantViewSet, basename='menu-gerant')
+router.register(r'image-chambres', ImageChambreViewSet, basename='image-chambres')
 
 urlpatterns = [
     path('registration/', RegisterView.as_view(), name='register'),
@@ -57,6 +59,10 @@ urlpatterns = [
     path("register-gerant/", RegisterGerantView.as_view(), name="register-gerant"),
     path('register-gerant-restaurant/', RegisterGerantRestaurantView.as_view(), name='register-gerant-restaurant'),
     path('mes-restaurants/', RestaurantsDuGerantAPIView.as_view(), name='mes-restaurants'),
+    path("image-chambres/<int:pk>/", ImageChambreDetailAPIView.as_view(), name="image-chambre-detail"),
+    
+
+
 
 
     path('images-chambres/<int:pk>/modifier/', ImageChambreUpdateAPIView.as_view(), name='modifier_image_chambre'),

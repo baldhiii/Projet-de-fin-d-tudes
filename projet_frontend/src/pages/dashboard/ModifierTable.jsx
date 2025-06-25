@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 export default function ModifierTable() {
-  const { id } = useParams(); // ID de la table
+  const { id } = useParams(); 
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -23,7 +23,7 @@ export default function ModifierTable() {
           numero: res.data.numero,
           capacite: res.data.capacite,
           disponible: res.data.disponible,
-          image: null, // on ne précharge pas de fichier, juste l’URL visuelle
+          image: null, 
         });
         setImagePreview(res.data.image || null);
       } catch (err) {
@@ -66,14 +66,14 @@ export default function ModifierTable() {
         },
       });
 
-      navigate(-1); // retour à la page précédente
+      navigate(-1); 
     } catch (err) {
       console.error("Erreur lors de la mise à jour :", err.response?.data || err.message);
     }
   };
 
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white shadow rounded-xl">
+    <div className="pt-24 p-6 max-w-xl mx-auto bg-white shadow rounded-xl">
       <h1 className="text-2xl font-bold mb-4">Modifier la Table</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
 

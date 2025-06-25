@@ -23,7 +23,7 @@ export default function ReservationForm() {
     prenom: "",
     nom: "",
     email: "",
-    telephone: ""  // laissé vide volontairement
+    telephone: ""  
   });
   
   const [demande, setDemande] = useState("");
@@ -77,7 +77,7 @@ export default function ReservationForm() {
     try {
       const headers = { headers: { Authorization: `Bearer ${token}` } };
   
-      // 1. Création pré-réservation
+      
       const preRes = await axios.post(
         "http://localhost:8000/api/auth/pre-reservation/",
         {
@@ -96,17 +96,17 @@ export default function ReservationForm() {
   
       const reservationId = preRes.data.reservation_id;
   
-      // 2. Demande d'une session Stripe
+      
       const stripeRes = await axios.post(
         "http://localhost:8000/api/auth/checkout-session/",
         { reservation_id: reservationId },
         headers
       );
   
-      // 3. Avant de rediriger, on enregistre un flag dans le localStorage
+      
       localStorage.setItem("paymentConfirmed", "ok");
   
-      // 4. Redirection vers Stripe
+      
       const stripe = await loadStripe(stripeRes.data.stripe_public_key);
       await stripe.redirectToCheckout({ sessionId: stripeRes.data.sessionId });
   
@@ -128,7 +128,7 @@ export default function ReservationForm() {
     const token = localStorage.getItem("accessToken");
     if (!token) return toast.error("Connexion requise");
   
-    setIsSubmitting(true);  // loader actif
+    setIsSubmitting(true);  
   
     try {
       await axios.post(`http://localhost:8000/api/auth/reservations/`, {
@@ -145,7 +145,7 @@ export default function ReservationForm() {
         headers: { Authorization: `Bearer ${token}` }
       });
   
-      setSuccess(true);  // succès activé
+      setSuccess(true);  
       toast.success("Réservation envoyée !");
     } catch (err) {
       toast.error("Erreur lors de la réservation");
@@ -196,7 +196,7 @@ export default function ReservationForm() {
           const newDate = e.target.value;
           setDateDebut(newDate);
 
-          // Réinitialiser la date de fin si elle devient invalide
+          
           if (dateFin && new Date(newDate) > new Date(dateFin)) {
             setDateFin("");
           }
@@ -212,17 +212,17 @@ export default function ReservationForm() {
         type="datetime-local"
         value={dateFin}
         onChange={(e) => setDateFin(e.target.value)}
-        min={dateDebut} // Empêche de sélectionner une date antérieure
+        min={dateDebut} 
         required
         className="w-full px-4 py-2 border rounded"
       />
     </div>
   
 
-  {/* Message d’erreur optionnel (UX) */}
+  
   {dateDebut && dateFin && new Date(dateFin) < new Date(dateDebut) && (
     <p className="text-red-600 text-sm mt-2">
-      ⚠️ La date de départ ne peut pas être avant la date d’arrivée.
+       La date de départ ne peut pas être avant la date d’arrivée.
     </p>
   )}
 
