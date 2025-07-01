@@ -261,7 +261,7 @@ class ImageEtablissementViewSet(viewsets.ModelViewSet):
         except Etablissement.DoesNotExist:
             raise serializers.ValidationError("Établissement non trouvé ou non autorisé.")
 
-        # ✅ Limite de 8 images par établissement
+        
         if ImageEtablissement.objects.filter(etablissement=etablissement).count() >= 8:
             raise serializers.ValidationError("Vous avez atteint la limite de 8 images pour cet établissement.")
 
