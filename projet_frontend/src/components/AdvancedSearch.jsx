@@ -1,4 +1,4 @@
-// 📁 components/SearchBarLuxvia.jsx
+//  components/SearchBarLuxvia.jsx
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaMapMarkerAlt, FaCalendarAlt, FaUserFriends } from "react-icons/fa";
